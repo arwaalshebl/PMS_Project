@@ -33,6 +33,33 @@ using (var scope = app.Services.CreateScope())
             Console.WriteLine($"Role {roleName} created");
         }
     }
+    //create accounts
+    async Task CreateTestUserAsync(string username,string email, string password, string role)
+    {
+        var user = await userManager.FindByEmailAsync(email);
+        if (user == null)
+        {
+            var newUser = new IdentityUser
+            {
+                UserName = username,
+                Email = email,
+                EmailConfirmed = true
+            };
+
+            var result = await userManager.CreateAsync(newUser, password);
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(newUser, role);
+                Console.WriteLine($"User {email} created with role {role}");
+            }
+        }
+    }
+
+    await CreateTestUserAsync("admin","admin@gmail.com", "@Arwa123", "Admin");
+    await CreateTestUserAsync("Tech Lead", "TechLead@gmail.com", "@Arwa123", "TechLead");
+    await CreateTestUserAsync("Developer", "Developer@gmail.com", "@Arwa123", "Developer");
+
+
 
 }
 // Configure the HTTP request pipeline.
@@ -52,7 +79,7 @@ app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
+    pattern: "{controller=Projects}/{action=IndexP}/{id?}")
     .WithStaticAssets();
 
 

@@ -1,0 +1,22 @@
+﻿@model PMSProject.Models.TaskModel
+
+<form asp-action="CreateT">
+    <div class="form-group">
+        <label>Task Name</label>
+        <input asp-for="TaskName" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Status</label>
+        <select asp-for="Status" asp-items="Html.GetEnumSelectList<PMSProject.Models.TaskStatus>()" class="form-control"></select>
+    </div>
+    <div class="form-group">
+        <label>To multiple choose press Ctrl</label>
+        <select name="selectedProjectIds" class="form-control" multiple>
+            @foreach (var project in ViewBag.ProjectsList)
+            {
+                <option value="@project.Id">@project.ProjectName</option>
+            }
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Save Task</button>
+</form>

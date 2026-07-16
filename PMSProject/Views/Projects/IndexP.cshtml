@@ -1,0 +1,20 @@
+﻿@model IEnumerable<PMSProject.Models.ProjectModel>
+<h2>قائمة المشاريع</h2>
+
+<a asp-action="CreateP" class="btn btn-primary rounded-pill px-4">
+    Submit New Project
+</a>
+<a asp-controller="Tasks" asp-action="CreateT" class="btn btn-success rounded-pill px-4">
+    Submit New Task
+</a>
+<a asp-controller="Tasks" asp-action="IndexT" class="btn btn-success rounded-pill px-4">
+    List of tasks
+</a>
+<table class="table">
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.ProjectName</td>
+        </tr>
+    }
+</table>

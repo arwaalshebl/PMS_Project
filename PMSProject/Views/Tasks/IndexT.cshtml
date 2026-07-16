@@ -1,0 +1,37 @@
+﻿@model IEnumerable<PMSProject.Models.TaskModel>
+<h2>Tasks List</h2>
+<a asp-action="CreateT" class="btn btn-success">Create New Task</a>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Task Name</th>
+            <th>Status</th>
+            <th>Stage</th>
+            <th>Actions</th>
+            <th>Releted project</th>
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.TaskName</td>
+                <td>@item.Status</td>
+                <td>@item.Stage</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+                <td>
+                    @if (item.projects != null)
+                    {
+                        @string.Join(", ", item.projects.Select(p => p.ProjectName))
+                    }
+                </td>
+
+            </tr>
+        }
+    </tbody>
+</table>
