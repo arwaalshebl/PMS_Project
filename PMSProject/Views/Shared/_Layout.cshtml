@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -27,6 +30,29 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
                     </ul>
+                    <!-- User Actions -->
+                    <div class="d-flex align-items-center gap-3">
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <div class="d-flex align-items-center me-2">
+                                <div class="avatar-sm bg-success-subtle text-success rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 35px; height: 35px;">
+                                    <i class="bi bi-person-check-fill"></i>
+                                </div>
+                                <span class="fw-semibold text-secondary small">Hi, @User.Identity.Name</span>
+                            </div>
+                            <form asp-controller="Account" asp-action="Logout" method="post">
+                                <button type="submit" class="btn btn-outline-danger rounded-pill px-4 btn-sm fw-bold">Logout</button>
+                            </form>
+
+                        }
+                        else
+                        {
+                            <a class="btn btn-link text-decoration-none text-secondary fw-semibold" asp-controller="Account" asp-action="Login">Login</a>
+                            <a class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold" asp-controller="Account" asp-action="Register">Get Started</a>
+
+                        }
+
+                    </div>
                 </div>
             </div>
         </nav>
