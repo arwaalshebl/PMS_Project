@@ -1,5 +1,7 @@
 ﻿using Mono.TextTemplating;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
+
 using System.Timers;
 
 namespace PMSProject.Models
@@ -8,7 +10,7 @@ namespace PMSProject.Models
     {
         public int Id { get; set; }
         public string? UserId { get; set; }
-
+        public List<IdentityUser> AssignedUser { get; set; } = new List<IdentityUser>();
 
         public string? TaskName { get; set; }
 

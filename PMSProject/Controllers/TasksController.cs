@@ -1,30 +1,60 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PMSProject.Data;
 using PMSProject.Models;
-using Microsoft.EntityFrameworkCore;
 public class TasksController : Controller
 {
     private readonly AppDbContext _context;
-    public TasksController(AppDbContext context)
+    private readonly UserManager<IdentityUser> _userManager;
+
+    public TasksController(AppDbContext context , UserManager<IdentityUser> userManager)
     {
         _context = context;
+        _userManager = userManager;
     }
   
+
     public async Task<IActionResult> IndexT()
     {
+        
         var tasks = await _context.Tasks
-            .Include(p => p.projects)
-            .ToListAsync();
-        return View(tasks);
+             .Include(p => p.projects)
+             .Include(d=>d.AssignedUser)
+             .ToListAsync();
+       // System.Diagnostics.Debug.WriteLine("number of tasks:" + tasks.Count);
+        if (User.IsInRole("Admin")|| User.IsInRole("TechLead"))
+        {
+            return View(tasks);
+
+        }
+        else
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null) return NotFound();
+
+            var usertasks = tasks.Where(d=>d.AssignedUser.Any(u=>u.Id == user.Id)).ToList();
+
+            return View(usertasks);
+
+        }
+
     }
 
-    public IActionResult CreateT()
+    public async Task<IActionResult> CreateT()
 
     {
 
        
         // SHOW ALL PROJECT
         ViewBag.ProjectsList = _context.Projects.ToList();
+        //show the developers only
+        var developers = await _userManager.GetUsersInRoleAsync("Developer");
+        ViewBag.Users = developers;
+
+
+
 
         return View();
 
@@ -34,7 +64,7 @@ public class TasksController : Controller
 
     [ValidateAntiForgeryToken]
 
-    public async Task<IActionResult> CreateT(TaskModel task, List<int> selectedProjectIds)
+    public async Task<IActionResult> CreateT(TaskModel task, List<int> selectedProjectIds , List<string> selectedUsersIds)
 
     {
         ModelState.Remove("Projects");
@@ -58,6 +88,11 @@ public class TasksController : Controller
                     .ToList();
 
             }
+            //show developers list to choose
+            var selectedUsers = _context.Users.Where(u => selectedUsersIds.Contains(u.Id)).ToList();
+            task.AssignedUser = selectedUsers;
+
+
 
             _context.Add(task);
 

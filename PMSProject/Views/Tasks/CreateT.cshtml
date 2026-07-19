@@ -11,12 +11,41 @@
     </div>
     <div class="form-group">
         <label>To multiple choose press Ctrl</label>
-        <select name="selectedProjectIds" class="form-control" multiple>
-            @foreach (var project in ViewBag.ProjectsList)
+        @if (ViewBag.ProjectsList != null && ViewBag.ProjectsList.Count > 0)
             {
-                <option value="@project.Id">@project.ProjectName</option>
+            <select name="selectedProjectIds" class="form-control" multiple>
+                @foreach (var project in ViewBag.ProjectsList)
+                {
+                    <option value="@project.Id">@project.ProjectName</option>
+                }
+            </select>
+
+                
             }
-        </select>
+            else {
+                <p>No Available Projects </p>
+            }
+
+       
+    </div>
+    <div class="form-group">
+        <label>To multiple choose press Ctrl</label>
+        @if (ViewBag.Users != null && ViewBag.Users.Count > 0)
+            {
+            <select name="selectedUsersIds" class="form-control" multiple>
+                @foreach (var user in ViewBag.Users)
+                {
+                    <option value="@user.Id">@user.UserName</option>
+                }
+            </select>
+                
+            }
+
+            else
+            {
+            <p>No Available Developers</p>
+            }
+
     </div>
     <button type="submit" class="btn btn-primary">Save Task</button>
 </form>

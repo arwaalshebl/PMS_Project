@@ -1,6 +1,9 @@
 ﻿@model IEnumerable<PMSProject.Models.TaskModel>
 <h2>Tasks List</h2>
 <a asp-action="CreateT" class="btn btn-success">Create New Task</a>
+
+
+
 <table class="table">
     <thead>
         <tr>
@@ -9,6 +12,7 @@
             <th>Stage</th>
             <th>Actions</th>
             <th>Releted project</th>
+            <th>Developer</th>
 
         </tr>
     </thead>
@@ -29,8 +33,20 @@
                     {
                         @string.Join(", ", item.projects.Select(p => p.ProjectName))
                     }
-                </td>
 
+                </td>
+                <td>
+                    @if (item.AssignedUser != null && item.AssignedUser.Any())
+                    {
+                        @string.Join(", ", item.AssignedUser.Select(u => u.UserName))
+
+                    }
+                    else
+                    {
+                        <span class="text-muted">Not Assigned</span>
+                    }
+
+                </td>
             </tr>
         }
     </tbody>

@@ -56,7 +56,7 @@ using (var scope = app.Services.CreateScope())
     }
 
     await CreateTestUserAsync("admin","admin@gmail.com", "@Arwa123", "Admin");
-    await CreateTestUserAsync("Tech Lead", "TechLead@gmail.com", "@Arwa123", "TechLead");
+    await CreateTestUserAsync("TechLeader", "TechLeader@gmail.com", "@Arwa123", "TechLead");
     await CreateTestUserAsync("Developer", "Developer@gmail.com", "@Arwa123", "Developer");
 
 
