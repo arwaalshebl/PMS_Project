@@ -1,6 +1,5 @@
 ﻿@model IEnumerable<PMSProject.Models.ProjectModel>
-<h2>قائمة المشاريع</h2>
-
+<h2>Project List </h2>
 <a asp-action="CreateP" class="btn btn-primary rounded-pill px-4">
     Submit New Project
 </a>
@@ -11,10 +10,31 @@
     List of tasks
 </a>
 <table class="table">
+    <thead>
+        <tr>
+            <th>Project Name</th>
+
+            <th>Developer</th>
+
+        </tr>
+    </thead>
     @foreach (var item in Model)
     {
         <tr>
             <td>@item.ProjectName</td>
+            <td>
+                @if (item.AssignedUser != null && item.AssignedUser.Any())
+                {
+                    @string.Join(", ", item.AssignedUser.Select(u => u.UserName))
+
+                }
+                else
+                {
+                    <span class="text-muted">Not Assigned</span>
+                }
+
+            </td>
         </tr>
+
     }
 </table>

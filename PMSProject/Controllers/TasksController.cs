@@ -22,24 +22,28 @@ public class TasksController : Controller
              .Include(p => p.projects)
              .Include(d=>d.AssignedUser)
              .ToListAsync();
-       // System.Diagnostics.Debug.WriteLine("number of tasks:" + tasks.Count);
-        if (User.IsInRole("Admin")|| User.IsInRole("TechLead"))
+        // System.Diagnostics.Debug.WriteLine("number of tasks:" + tasks.Count);
+        if (User.Identity != null)
         {
-            return View(tasks);
+            if (User.IsInRole("Admin") || User.IsInRole("TechLead"))
+            {
+                return View(tasks);
 
+            }
+            else
+            {
+                var user = await _userManager.GetUserAsync(User);
+
+                if (user != null)
+                {
+                    var usertasks = tasks.Where(d => d.AssignedUser.Any(u => u.Id == user.Id)).ToList();
+
+                    return View(usertasks);
+                }
+            }
         }
-        else
-        {
-            var user = await _userManager.GetUserAsync(User);
-
-            if (user == null) return NotFound();
-
-            var usertasks = tasks.Where(d=>d.AssignedUser.Any(u=>u.Id == user.Id)).ToList();
-
-            return View(usertasks);
-
-        }
-
+        //without any rols
+        return View(new List<TaskModel>());
     }
 
     public async Task<IActionResult> CreateT()
@@ -64,7 +68,7 @@ public class TasksController : Controller
 
     [ValidateAntiForgeryToken]
 
-    public async Task<IActionResult> CreateT(TaskModel task, List<int> selectedProjectIds , List<string> selectedUsersIds)
+    public async Task<IActionResult> CreateT(TaskModel task, List<int> selectedProjectIds , List<string> selectedUsersIds )
 
     {
         ModelState.Remove("Projects");
@@ -74,9 +78,11 @@ public class TasksController : Controller
 
         {
 
+ 
+
 
             //connect task with project
-            // bcs m - m you can choose more thwn one project
+            // bcs m - m you can choose more than one project
             if (selectedProjectIds != null)
 
             {
@@ -87,10 +93,14 @@ public class TasksController : Controller
 
                     .ToList();
 
+
+
             }
+
             //show developers list to choose
             var selectedUsers = _context.Users.Where(u => selectedUsersIds.Contains(u.Id)).ToList();
             task.AssignedUser = selectedUsers;
+
 
 
 
@@ -111,6 +121,20 @@ public class TasksController : Controller
         ViewBag.ProjectsList = _context.Projects.ToList();
 
         return View(task);
+
+    }
+    public IActionResult DeleteT(int id)
+    {
+        var task = _context.Tasks
+
+            .FirstOrDefault(p => p.Id == id);
+        if (task == null) return NotFound();
+
+
+        _context.Tasks.Remove(task);
+        _context.SaveChanges();
+        return RedirectToAction("IndexT");
+
 
     }
 

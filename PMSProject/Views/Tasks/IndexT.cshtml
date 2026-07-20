@@ -2,7 +2,12 @@
 <h2>Tasks List</h2>
 <a asp-action="CreateT" class="btn btn-success">Create New Task</a>
 
-
+<a asp-controller="Projects" asp-action="CreateP" class="btn btn-primary rounded-pill px-4">
+    Submit New Project
+</a>
+<a asp-controller="Projects" asp-action="IndexP" class="btn btn-primary rounded-pill px-4">
+    List of tasks
+</a>
 
 <table class="table">
     <thead>
@@ -26,7 +31,7 @@
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                     <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    <a class="btn-danger" asp-action="DeleteT" asp-route-id="@item.Id">Delete</a>
                 </td>
                 <td>
                     @if (item.projects != null)

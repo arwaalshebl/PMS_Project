@@ -1,10 +1,14 @@
-﻿namespace PMSProject.Models
+﻿using Microsoft.AspNetCore.Identity;
+
+namespace PMSProject.Models
 {
     public class ProjectModel
     {
         public int Id { get; set; }
 
         public string? UserId { get; set; } = null;
+        public List<IdentityUser> AssignedUser { get; set; } = new List<IdentityUser>();
+
 
         public string ProjectName { get; set; }
 
