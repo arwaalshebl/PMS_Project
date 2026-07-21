@@ -34,7 +34,7 @@ namespace PMSProject.Controllers
 
                     TempData["ShowNotificationRequest"] = true;
 
-                    return RedirectToAction("IndexP", "Projects");
+                    return RedirectToAction("Dashboard", "Home");
                 }
 
                 ModelState.AddModelError(string.Empty, "محاولة دخول غير صحيحة.");
@@ -66,7 +66,7 @@ namespace PMSProject.Controllers
 
                     await _signInManager.SignInAsync(user, isPersistent: false);
 
-                    return RedirectToAction("IndexP", "Projects");
+                    return RedirectToAction("Dashboard", "Home");
                 }
 
                 foreach (var error in result.Errors)
@@ -81,7 +81,7 @@ namespace PMSProject.Controllers
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            return RedirectToAction("IndexP", "Projects");
+            return RedirectToAction("Dashboard", "Home");
         }
         [HttpGet]
         public IActionResult AccessDenied()

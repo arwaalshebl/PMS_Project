@@ -1,0 +1,102 @@
+﻿@model PMSProject.Models.TaskAndProjectViewModel
+@{
+    ViewData["Title"] = "Dashboard - Tasks & Projects";
+}
+<div class="container mt-4">
+    <h2 class="mb-4">Dashboard</h2>
+    <div class="row">
+        <!-- Projects Section -->
+        <div class="col-md-6">
+            <a asp-controller="Projects" asp-action="IndexP" class="btn btn-primary rounded-pill px-4">
+                List of Projects
+            </a>
+            <a asp-controller="Projects" asp-action="CreateP" class="btn btn-primary rounded-pill px-4">
+                Submit New Project
+            </a>
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Projects</h4>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Project Name</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Projects != null && Model.Projects.Any())
+                            {
+                                @foreach (var project in Model.Projects)
+                                {
+                                    <tr>
+                                        <td>@project.ProjectName</td>
+                                        <td>
+                                           
+                                            <a asp-action="Details" asp-route-id="@project.Id" class="btn btn-sm btn-info">Details</a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="2" class="text-center text-muted">No projects available.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- Tasks Section -->
+        <div class="col-md-6">
+            <a asp-controller="Tasks" asp-action="CreateT" class="btn btn-success rounded-pill px-4">
+                Submit New Task
+            </a>
+            <a asp-controller="Tasks" asp-action="IndexT" class="btn btn-success rounded-pill px-4">
+                List of tasks
+            </a>
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Tasks</h4>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Task Title</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Tasks != null && Model.Tasks.Any())
+                            {
+                                @foreach (var task in Model.Tasks)
+                                {
+                                    <tr>
+                                        <td>@task.TaskName</td> 
+                                        <td>@task.Status</td>    
+                                        <td>
+                                            <a asp-action="Details" asp-route-id="@task.Id" class="btn btn-sm btn-info">Details</a>
+                                            <a class="btn-danger" asp-action="DeleteT" asp-route-id="@task.Id">Delete</a>
+
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">No tasks available.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
