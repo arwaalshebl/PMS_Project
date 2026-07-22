@@ -98,6 +98,19 @@ namespace PMSProject.Controllers
             return View(project); 
         }
 
+        public IActionResult DeleteP(int id)
+        {
+            var project = _context.Projects
 
+                .FirstOrDefault(p => p.Id == id);
+            if (project == null) return NotFound();
+
+
+            _context.Projects.Remove(project);
+            _context.SaveChanges();
+            return RedirectToAction("Indexp");
+
+
+        }
     }
 }

@@ -15,6 +15,7 @@
             <th>Project Name</th>
 
             <th>Developer</th>
+            <th>Action</th>
 
         </tr>
     </thead>
@@ -33,6 +34,11 @@
                     <span class="text-muted">Not Assigned</span>
                 }
 
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a class="btn-danger" asp-action="DeleteP" asp-route-id="@item.Id">Delete</a>
             </td>
         </tr>
 
