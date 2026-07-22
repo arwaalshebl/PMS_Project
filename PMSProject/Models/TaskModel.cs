@@ -24,7 +24,7 @@ namespace PMSProject.Models
         ////Relations
         //projrcts m-m
         public ICollection<ProjectModel> projects { get; set; }
-        //    member m-m
+        //    member m-1 done
         // sprints m-m
 
         public DateTime? EstimatedDate {  get; set; }

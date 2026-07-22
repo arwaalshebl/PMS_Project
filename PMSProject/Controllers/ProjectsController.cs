@@ -90,7 +90,7 @@ namespace PMSProject.Controllers
 
                 _context.Add(project);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(IndexP)); 
+                return RedirectToAction("Dashboard", "Home");
             }
             //show the developers only
             var developers = await _userManager.GetUsersInRoleAsync("Developer");
@@ -108,7 +108,7 @@ namespace PMSProject.Controllers
 
             _context.Projects.Remove(project);
             _context.SaveChanges();
-            return RedirectToAction("Indexp");
+            return RedirectToAction("Dashboard", "Home");
 
 
         }

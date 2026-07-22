@@ -1,33 +1,64 @@
 ﻿@model PMSProject.Models.ProjectModel
-<h2>Add New Project</h2>
-<form asp-action="CreateP">
-    <div class="form-group">
-        <label>Project Name</label>
-        <input asp-for="ProjectName" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label>Devolper : </label>
-        @if (ViewBag.Users != null)
-        {
-            <select name="selectedUserId" class="form-control" >
-                @foreach (var user in ViewBag.Users)
-                {
-                    <option value="@user.Id">@user.UserName</option>
-                }
-            </select>
 
-        }
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
 
-        else
-        {
-            <p>No Available Developers</p>
-        }
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Add New Project</h4>
+                </div>
 
+                <div class="card-body">
+                    <form asp-action="CreateP" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <!-- Project Name -->
+                        <div class="mb-3">
+                            <label asp-for="ProjectName" class="form-label font-weight-bold">Project Name</label>
+                            <input asp-for="ProjectName" class="form-control" placeholder="Enter project name..." />
+                            <span asp-validation-for="ProjectName" class="text-danger"></span>
+                        </div>
+
+                        <!-- Developer Selection -->
+                        <div class="mb-3">
+                            <label class="form-label font-weight-bold">Developer</label>
+                            @if (ViewBag.Users != null)
+                            {
+                                <select name="selectedUserId" class="form-select">
+                                    <option value="">-- Select Developer --</option>
+                                    @foreach (var user in ViewBag.Users)
+                                    {
+                                        <option value="@user.Id">@user.UserName</option>
+                                    }
+                                </select>
+                            }
+                            else
+                            {
+                                <div class="alert alert-warning py-2 mb-0" role="alert">
+                                    No Available Developers
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Project Note -->
+                        <div class="mb-3">
+                            <label asp-for="Note" class="form-label font-weight-bold">Note</label>
+                            <textarea asp-for="Note" class="form-control" rows="4" placeholder="Enter free-form project notes..."></textarea>
+                            <span asp-validation-for="Note" class="text-danger"></span>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a asp-controller="Home" asp-action="Dashboard" class="btn btn-secondary me-md-2">Back to Dashboard</a>
+
+                            <button type="submit" class="btn btn-primary">Save Project</button>
+                        </div>
+
+                    </form>
+                </div>
+
+            </div>
+        </div>
     </div>
-    <div class="form-group">
-        <label>Note</label>
-        <textarea asp-for="Note" class="form-control"></textarea>
-    </div>
-    <br />
-    <button type="submit" class="btn btn-primary">Save Project</button>
-</form>
+</div>

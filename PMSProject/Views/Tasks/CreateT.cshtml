@@ -1,21 +1,25 @@
 ﻿@model PMSProject.Models.TaskModel
 
 <div class="container mt-4">
-<div class="row justify-content-center">
-<div class="col-md-8">
-<div class="card shadow-sm">
-<div class="card-header bg-primary text-white">
-<h4 class="mb-0">Create New Task</h4>
-</div>
-<div class="card-body">
-<form asp-action="CreateT" method="post">
-<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-<!-- Task Title / Name -->
-<div class="mb-3">
-<label asp-for="TaskName" class="form-label font-weight-bold">Task Title</label>
-<input asp-for="TaskName" class="form-control" placeholder="Enter task title..." />
- <span asp-validation-for="TaskName" class="text-danger"></span>
-</div>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Create New Task</h4>
+                </div>
+
+                <div class="card-body">
+                    <form asp-action="CreateT" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <!-- Task Title / Name -->
+                        <div class="mb-3">
+                            <label asp-for="TaskName" class="form-label font-weight-bold">Task Title</label>
+                            <input asp-for="TaskName" class="form-control" placeholder="Enter task title..." />
+                            <span asp-validation-for="TaskName" class="text-danger"></span>
+                        </div>
+
                         <!-- Project Selection -->
                         <div class="mb-3">
                             <label class="form-label font-weight-bold">Project</label>
@@ -24,39 +28,46 @@
                                 <!-- يمكنكِ جلب القائمة الأساسية هنا من الـ ViewBag إذا لزم الأمر -->
                             </select>
                         </div>
-<!-- Developer Selection -->
-<div class="mb-3">
-<label class="form-label font-weight-bold">Developer</label>
+
+                        <!-- Developer Selection -->
+                        <div class="mb-3">
+                            <label class="form-label font-weight-bold">Developer</label>
                             <select name="selectedUsersIds" id="DeveloperId" class="form-select" asp-items="ViewBag.Users">
-<option value="">-- Select Developer --</option>
-<!-- يمكنكِ جلب القائمة الأساسية هنا من الـ ViewBag إذا لزم الأمر -->
-</select>
+                                <option value="">-- Select Developer --</option>
+                                <!-- يمكنكِ جلب القائمة الأساسية هنا من الـ ViewBag إذا لزم الأمر -->
+                            </select>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-controller="Home" asp-action="Dashboard" class="btn btn-secondary me-md-2">Back to Dashboard</a>
+                            <button type="submit" class="btn btn-success">Create Task</button>
+                        </div>
+
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
 </div>
 
-<!-- Submit Button -->
-<div class="d-grid gap-2 d-md-flex justify-content-md-end">
-<a asp-controller"Home" asp-action="Dashboard" class="btn btn-secondary me-md-2">Back to Dashboard</a>
-<button type="submit" class="btn btn-success">Create Task</button>
-</div>
-</form>
-</div>
-</div>
-</div>
-</div>
-</div>
 @section Scripts {
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const devSelect = document.getElementById("DeveloperId");
             const projSelect = document.getElementById("ProjectId");
+
             if (projSelect) {
                 projSelect.addEventListener("change", function () {
                     let projectId = this.value;
+
                     // إذا لم يتم اختيار مشروع، نقوم بتفريغ قائمة المطورين
                     if (!projectId) {
                         devSelect.innerHTML = '<option value="">-- Select Developer --</option>';
                         return;
                     }
+
                     // جلب المطورين التابعين لهذا المشروع فقط
                     fetch(`/Tasks/GetDevelopersByProject?projectId=${projectId}`)
                         .then(response => response.json())

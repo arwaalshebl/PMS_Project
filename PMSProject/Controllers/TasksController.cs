@@ -107,7 +107,7 @@ public class TasksController : Controller
 
             _context.Add(task);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(IndexT));
+            return RedirectToAction("Dashboard", "Home");
         }
         
         ViewBag.Users = new SelectList(await _userManager.GetUsersInRoleAsync("Developer"), "Id", "UserName");
@@ -125,7 +125,7 @@ public class TasksController : Controller
 
         _context.Tasks.Remove(task);
         _context.SaveChanges();
-        return RedirectToAction("IndexT");
+        return RedirectToAction("Dashboard","Home");
 
 
     }
