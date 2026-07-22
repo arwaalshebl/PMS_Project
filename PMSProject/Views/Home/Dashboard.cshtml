@@ -69,6 +69,7 @@
                                 <th>Task Title</th>
                                 <th>Status</th>
                                 <th>Actions</th>
+                                <th>Delvolper</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -81,8 +82,19 @@
                                         <td>@task.Status</td>    
                                         <td>
                                             <a asp-action="Details" asp-route-id="@task.Id" class="btn btn-sm btn-info">Details</a>
-                                            <a class="btn-danger" asp-action="DeleteT" asp-route-id="@task.Id">Delete</a>
+                                            <a class="btn btn-sm btn-danger" asp-action="DeleteT" asp-route-id="@task.Id">Delete</a>
 
+                                        </td>
+                                        <td>
+                                            @if (task.AssignedUser != null)
+                                            {
+                                                @string.Join(", ", task.AssignedUser)
+
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Not Assigned</span>
+                                            }
                                         </td>
                                     </tr>
                                 }

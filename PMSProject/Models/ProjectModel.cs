@@ -7,7 +7,8 @@ namespace PMSProject.Models
         public int Id { get; set; }
 
         public string? UserId { get; set; } = null;
-        public List<IdentityUser> AssignedUser { get; set; } = new List<IdentityUser>();
+        public IdentityUser? AssignedUser { get; set; }
+
 
 
         public string ProjectName { get; set; }

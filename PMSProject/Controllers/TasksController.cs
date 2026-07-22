@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PMSProject.Data;
 using PMSProject.Models;
@@ -36,7 +37,7 @@ public class TasksController : Controller
 
                 if (user != null)
                 {
-                    var usertasks = tasks.Where(d => d.AssignedUser.Any(u => u.Id == user.Id)).ToList();
+                    var usertasks = tasks.Where(d => d.UserId ==  user.Id).ToList();
 
                     return View(usertasks);
                 }
@@ -52,10 +53,11 @@ public class TasksController : Controller
 
        
         // SHOW ALL PROJECT
-        ViewBag.ProjectsList = _context.Projects.ToList();
+       // ViewBag.ProjectsList = _context.Projects.ToList();
+        ViewBag.ProjectsList = new SelectList(_context.Projects.ToList(),"Id","ProjectName");
         //show the developers only
         var developers = await _userManager.GetUsersInRoleAsync("Developer");
-        ViewBag.Users = developers;
+        ViewBag.Users =new SelectList(developers,"Id","UserName");
 
 
 
@@ -65,64 +67,54 @@ public class TasksController : Controller
     }
 
     [HttpPost]
-
     [ValidateAntiForgeryToken]
-
-    public async Task<IActionResult> CreateT(TaskModel task, List<int> selectedProjectIds , List<string> selectedUsersIds )
-
+    public async Task<IActionResult> CreateT(TaskModel task, List<int> selectedProjectIds, string selectedUserId)
     {
-        ModelState.Remove("Projects");
+        ModelState.Remove("projects");
+        ModelState.Remove("AssignedUser");
 
-    
         if (ModelState.IsValid)
-
         {
-
- 
-
-
-            //connect task with project
-            // bcs m - m you can choose more than one project
-            if (selectedProjectIds != null)
-
+            // 1. ربط المشاريع
+            if (selectedProjectIds != null && selectedProjectIds.Any())
             {
-
                 task.projects = _context.Projects
-
                     .Where(p => selectedProjectIds.Contains(p.Id))
-
                     .ToList();
+            }
+            ///////
+            //System.Diagnostics.Debug.WriteLine("-------Selected user count:  "+(selectedUsersIds?.Count??0));
+            //if(selectedUsersIds != null && selectedUsersIds.Count >0)
+            //{
+            //    System.Diagnostics.Debug.WriteLine("-------fIRST USER ID:  " + selectedUsersIds[0]);
 
+            //}
+            //////
+            //
+            if (! string.IsNullOrEmpty(selectedUserId))
+            {
+                ///
 
+                var selectedUser = await _userManager.FindByIdAsync(selectedUserId);
+                    if (selectedUser != null)
+                {
+                    task.AssignedUser = selectedUser;
 
+                    task.UserId = selectedUserId;
+                }
+   
             }
 
-            //show developers list to choose
-            var selectedUsers = _context.Users.Where(u => selectedUsersIds.Contains(u.Id)).ToList();
-            task.AssignedUser = selectedUsers;
-
-
-
-
             _context.Add(task);
-
             await _context.SaveChangesAsync();
-
             return RedirectToAction(nameof(IndexT));
-
         }
-
-        var errors = ModelState.Values.SelectMany(v => v.Errors);
-        Console.WriteLine("--------Task Name:" + task.TaskName);
-        Console.WriteLine("--------Selected projects count:" + (selectedProjectIds?.Count??0));
-
-
-
-        ViewBag.ProjectsList = _context.Projects.ToList();
-
+        
+        ViewBag.Users = new SelectList(await _userManager.GetUsersInRoleAsync("Developer"), "Id", "UserName");
+        ViewBag.ProjectsList = new SelectList(_context.Projects.ToList(), "Id", "ProjectName");
         return View(task);
-
     }
+
     public IActionResult DeleteT(int id)
     {
         var task = _context.Tasks
@@ -136,6 +128,32 @@ public class TasksController : Controller
         return RedirectToAction("IndexT");
 
 
+    }
+
+
+
+    //[HttpGet]
+    //public IActionResult GetProjectsByDeveloper(string userId)
+    //{
+    //    //project list for the selected devolper
+    //    var projects = _context.Projects
+    //        .Where(p => p.AssignedUser.Any(u => u.Id == userId))
+    //        .Select(p => new { p.Id, p.ProjectName })
+    //        .ToList();
+    //    return Json(projects);
+    //}
+
+    [HttpGet]
+    public IActionResult GetDevelopersByProject(int projectId)
+    {
+        //devloper list for the selected project
+        var developers = _context.Projects
+            .Where(p => p.Id == projectId)
+            .Select(p => p.AssignedUser)
+            .Select(u => new { u.Id, u.UserName })
+            .Distinct()
+            .ToList();
+        return Json(developers);
     }
 
 }

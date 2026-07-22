@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Build.Utilities;
 using Microsoft.EntityFrameworkCore;
 using PMSProject.Data; 
@@ -37,7 +38,7 @@ namespace PMSProject.Controllers
 
                    if (user != null)
                     {
-                        var userprojects = projects.Where(d => d.AssignedUser.Any(u => u.Id == user.Id)).ToList();
+                        var userprojects = projects.Where(d => d.UserId == user.Id).ToList();
 
                         return View(userprojects);
 
@@ -64,23 +65,39 @@ namespace PMSProject.Controllers
         
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateP(ProjectModel project , List<string> selectedUsersIds)
+        public async Task<IActionResult> CreateP(ProjectModel project , string selectedUserId)
         {
+            ModelState.Remove("AssignedUser");
+            ModelState.Remove("UserId");
+
             if (ModelState.IsValid)
             {
- 
-                //show developers list to choose
-                // bcs m - m you can choose more than one project
+                if (!string.IsNullOrEmpty(selectedUserId))
+                {
+                    ///
 
-                var selectedUsers = _context.Users.Where(u => selectedUsersIds.Contains(u.Id)).ToList();
-                project.AssignedUser = selectedUsers;
+                    var selectedUser = await _userManager.FindByIdAsync(selectedUserId);
+                    if (selectedUser != null)
+                    {
+                        
 
+                        project.UserId = selectedUserId;
+                        project.AssignedUser = selectedUser;
+                    }
+
+
+                }
 
                 _context.Add(project);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(IndexP)); 
             }
+            //show the developers only
+            var developers = await _userManager.GetUsersInRoleAsync("Developer");
+            ViewBag.Users = new SelectList(developers, "Id", "UserName");
             return View(project); 
         }
+
+
     }
 }

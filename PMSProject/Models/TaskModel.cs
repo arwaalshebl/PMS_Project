@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 
 using System.Timers;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PMSProject.Models
 {
@@ -10,7 +11,8 @@ namespace PMSProject.Models
     {
         public int Id { get; set; }
         public string? UserId { get; set; }
-        public List<IdentityUser> AssignedUser { get; set; } = new List<IdentityUser>();
+        [ForeignKey("UserId")]
+        public IdentityUser? AssignedUser { get; set; }
 
         public string? TaskName { get; set; }
 

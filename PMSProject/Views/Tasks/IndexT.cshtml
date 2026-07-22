@@ -41,9 +41,9 @@
 
                 </td>
                 <td>
-                    @if (item.AssignedUser != null && item.AssignedUser.Any())
+                    @if (item.AssignedUser != null )
                     {
-                        @string.Join(", ", item.AssignedUser.Select(u => u.UserName))
+                        @string.Join(", ", item.AssignedUser)
 
                     }
                     else

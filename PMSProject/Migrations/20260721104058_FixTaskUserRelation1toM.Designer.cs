@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PMSProject.Data;
 
@@ -11,9 +12,11 @@ using PMSProject.Data;
 namespace PMSProject.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260721104058_FixTaskUserRelation1toM")]
+    partial class FixTaskUserRelation1toM
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -116,6 +119,9 @@ namespace PMSProject.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<int?>("ProjectModelId")
+                        .HasColumnType("int");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
@@ -135,6 +141,8 @@ namespace PMSProject.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.HasIndex("ProjectModelId");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -228,9 +236,6 @@ namespace PMSProject.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AssignedUserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
 
@@ -248,8 +253,6 @@ namespace PMSProject.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AssignedUserId");
 
                     b.HasIndex("ParentProjectID");
 
@@ -316,6 +319,13 @@ namespace PMSProject.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
+                {
+                    b.HasOne("PMSProject.Models.ProjectModel", null)
+                        .WithMany("AssignedUser")
+                        .HasForeignKey("ProjectModelId");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
@@ -360,16 +370,10 @@ namespace PMSProject.Migrations
 
             modelBuilder.Entity("PMSProject.Models.ProjectModel", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "AssignedUser")
-                        .WithMany()
-                        .HasForeignKey("AssignedUserId");
-
                     b.HasOne("PMSProject.Models.ProjectModel", "ParentProject")
                         .WithMany("SubProjects")
                         .HasForeignKey("ParentProjectID")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("AssignedUser");
 
                     b.Navigation("ParentProject");
                 });
@@ -400,6 +404,8 @@ namespace PMSProject.Migrations
 
             modelBuilder.Entity("PMSProject.Models.ProjectModel", b =>
                 {
+                    b.Navigation("AssignedUser");
+
                     b.Navigation("SubProjects");
                 });
 #pragma warning restore 612, 618

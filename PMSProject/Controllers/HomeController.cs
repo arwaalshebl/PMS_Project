@@ -60,10 +60,10 @@ namespace PMSProject.Controllers
                     if (user != null)
                     {
                         filteredTasks = allTasks
-                            .Where(t => t.AssignedUser != null && t.AssignedUser.Any(u => u.Id == user.Id))
+                            .Where(t => t.UserId  == user.Id)
                             .ToList();
                         filteredProjects = allProjects
-                            .Where(p => p.AssignedUser != null && p.AssignedUser.Any(u => u.Id == user.Id))
+                            .Where(t => t.UserId == user.Id)
                             .ToList();
                     }
                 }
