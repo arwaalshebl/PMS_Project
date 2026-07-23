@@ -19,10 +19,17 @@
                             <input asp-for="ProjectName" class="form-control" placeholder="Enter project name..." />
                             <span asp-validation-for="ProjectName" class="text-danger"></span>
                         </div>
-
+                        <!-- Parent Project -->
+                        <div class="mb-3">
+                            <label class="form-label">Parent Project: (Optional)</label>
+                            <select name="parentProjectId" class="form-label" asp-items="ViewBag.ParentProjects">
+                                <option value=""> --None (Main Project) -- </option>
+                            </select>
+                        </div>
                         <!-- Developer Selection -->
                         <div class="mb-3">
                             <label class="form-label font-weight-bold">Developer</label>
+                           
                             @if (ViewBag.Users != null)
                             {
                                 <select name="selectedUserId" class="form-select">

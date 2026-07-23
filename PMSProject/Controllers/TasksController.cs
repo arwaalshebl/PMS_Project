@@ -20,7 +20,7 @@ public class TasksController : Controller
     {
         
         var tasks = await _context.Tasks
-             .Include(p => p.projects)
+             .Include(p => p.Project)
              .Include(d=>d.AssignedUser)
              .ToListAsync();
         // System.Diagnostics.Debug.WriteLine("number of tasks:" + tasks.Count);
@@ -68,32 +68,26 @@ public class TasksController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> CreateT(TaskModel task, List<int> selectedProjectIds, string selectedUserId)
+    public async Task<IActionResult> CreateT(TaskModel task, int?projectId, string selectedUserId)
     {
         ModelState.Remove("projects");
         ModelState.Remove("AssignedUser");
 
         if (ModelState.IsValid)
         {
-            // 1. ربط المشاريع
-            if (selectedProjectIds != null && selectedProjectIds.Any())
+            if(projectId.HasValue)
             {
-                task.projects = _context.Projects
-                    .Where(p => selectedProjectIds.Contains(p.Id))
-                    .ToList();
+                task.ProjectId= projectId.Value;
             }
-            ///////
-            //System.Diagnostics.Debug.WriteLine("-------Selected user count:  "+(selectedUsersIds?.Count??0));
-            //if(selectedUsersIds != null && selectedUsersIds.Count >0)
-            //{
-            //    System.Diagnostics.Debug.WriteLine("-------fIRST USER ID:  " + selectedUsersIds[0]);
+            else
+            {
+                task.ProjectId = null; //task without project
+            }
 
-            //}
-            //////
-            //
+           
             if (! string.IsNullOrEmpty(selectedUserId))
             {
-                ///
+                
 
                 var selectedUser = await _userManager.FindByIdAsync(selectedUserId);
                     if (selectedUser != null)

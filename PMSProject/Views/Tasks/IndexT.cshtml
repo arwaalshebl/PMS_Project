@@ -55,10 +55,10 @@
                                 </td>
                                 <td>@item.Stage</td>
                                 <td>
-                                    @if (item.projects != null && item.projects.Any())
+                                    @if (item.Project != null )
                                     {
                                         <span class="text-muted">
-                                            @string.Join(", ", item.projects.Select(p => p.ProjectName))
+                                            @string.Join(", ", item.Project)
                                         </span>
                                     }
                                     else

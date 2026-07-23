@@ -23,7 +23,7 @@
                         <!-- Project Selection -->
                         <div class="mb-3">
                             <label class="form-label font-weight-bold">Project</label>
-                            <select name="selectedProjectIds" id="ProjectId" class="form-select" asp-items="ViewBag.ProjectsList">
+                            <select name="projectId" id="ProjectId" class="form-select" asp-items="ViewBag.ProjectsList">
                                 <option value="">-- Select Project --</option>
                                 <!-- يمكنكِ جلب القائمة الأساسية هنا من الـ ViewBag إذا لزم الأمر -->
                             </select>
@@ -32,7 +32,7 @@
                         <!-- Developer Selection -->
                         <div class="mb-3">
                             <label class="form-label font-weight-bold">Developer</label>
-                            <select name="selectedUsersIds" id="DeveloperId" class="form-select" asp-items="ViewBag.Users">
+                            <select name="selectedUserId" id="DeveloperId" class="form-select" asp-items="ViewBag.Users">
                                 <option value="">-- Select Developer --</option>
                                 <!-- يمكنكِ جلب القائمة الأساسية هنا من الـ ViewBag إذا لزم الأمر -->
                             </select>

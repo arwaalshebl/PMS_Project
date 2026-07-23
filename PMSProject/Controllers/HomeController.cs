@@ -42,10 +42,15 @@ namespace PMSProject.Controllers
         {
             
             var allTasks = await _context.Tasks
+                .Include(p => p.Project)
+                      .ThenInclude(p => p.ParentProject)
                 .Include(t => t.AssignedUser)
                 .ToListAsync();
+
             var allProjects = await _context.Projects
                 .Include(p => p.AssignedUser)
+                .Include(pa => pa.ParentProject)
+                .Include(s=>s.SubProjects)
                 .ToListAsync();
             List<TaskModel> filteredTasks = new List<TaskModel>();
             List<ProjectModel> filteredProjects = new List<ProjectModel>();

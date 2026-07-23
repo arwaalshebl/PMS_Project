@@ -22,10 +22,12 @@ namespace PMSProject.Models
 
 
         ////Relations
-        //projrcts m-m
-        public ICollection<ProjectModel> projects { get; set; }
+        /////1-M PROJECT
+        public int? ProjectId { get; set; }
+        public  ProjectModel? Project { get; set; }
+
         //    member m-1 done
-        // sprints m-m
+        // sprints 1-m
 
         public DateTime? EstimatedDate {  get; set; }
         public DateTime? StartedOn { get; set; }

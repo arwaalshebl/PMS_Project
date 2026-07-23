@@ -6,7 +6,7 @@
     <h2 class="mb-4">Dashboard</h2>
     <div class="row">
         <!-- Projects Section -->
-        <div class="col-md-6">
+        <div class="col">
             <a asp-controller="Projects" asp-action="IndexP" class="btn btn-primary rounded-pill px-4">
                 List of Projects
             </a>
@@ -22,6 +22,9 @@
                         <thead>
                             <tr>
                                 <th>Project Name</th>
+                                <th>Parent Project</th>
+                                <th>Delvolper</th>
+
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -33,7 +36,31 @@
                                     <tr>
                                         <td>@project.ProjectName</td>
                                         <td>
-                                           
+                                            @if(project.ParentProject != null)
+                                            {
+                                                <span class="text-dark">@project.ParentProject.ProjectName</span>
+
+                                            }
+                                            else
+                                            {
+                                                <span class="text-dark">Main Project</span>
+
+                                            }
+                                        </td>
+       
+                                        <td>
+                                            @if (project.AssignedUser != null)
+                                            {
+                                                @string.Join(", ", project.AssignedUser)
+
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Not Assigned</span>
+                                            }
+                                        </td>
+                                        <td>
+
                                             <button class="btn btn-sm btn-danger" asp-action="DeleteP" asp-route-id="@project.Id">Delete</button>
                                             <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editProjectModal" data-id="@project.Id">
                                                 Edit
@@ -54,8 +81,10 @@
                 </div>
             </div>
         </div>
+    </div>
         <!-- Tasks Section -->
-        <div class="col-md-6">
+        <div class="row">
+        <div class="col">
             <a asp-controller="Tasks" asp-action="CreateT" class="btn btn-success rounded-pill px-4">
                 Submit New Task
             </a>
@@ -71,9 +100,11 @@
                         <thead>
                             <tr>
                                 <th>Task Title</th>
+                                <th>Parent Project</th>
+                                <th>sub-Project</th>
+                                <th>Developer</th>
                                 <th>Status</th>
                                 <th>Actions</th>
-                                <th>Delvolper</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -82,35 +113,55 @@
                                 @foreach (var task in Model.Tasks)
                                 {
                                     <tr>
-                                        <td>@task.TaskName</td> 
-                                        <td>@task.Status</td>    
                                         <td>
-                                            <a class="btn btn-sm btn-danger" asp-action="DeleteT" asp-route-id="@task.Id">Delete</a>
-                                            <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editTaskModal" data-id="@task.Id">
-                                                Edit 
-                                            </button>
-
-
+                                            <strong>@task.TaskName</strong><br />
+                                            <small class="text-muted">ID: @task.ProjectId /// ParentID: @task.Project?.ParentProjectID</small>
+                                        </td>
+                                        <!-- 2. المشروع الأب (Parent Project) -->
+                                        <td>
+                                            @if (task.Project?.ParentProject != null)
+                                            {
+                                                <span class="text-dark">@task.Project.ParentProject.ProjectName</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-dark">-- Main Project</span>
+                                            }
+                                        </td>
+                                        <!-- 3. المشروع الفرعي (Sub-Project) -->
+                                        <td>
+                                            @if (task.Project != null)
+                                            {
+                                                <span class="text-dark">@task.Project.ProjectName</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-dark">No Project</span>
+                                            }
                                         </td>
                                         <td>
                                             @if (task.AssignedUser != null)
                                             {
-                                                @string.Join(", ", task.AssignedUser)
-
+                                                @task.AssignedUser.UserName
                                             }
                                             else
                                             {
                                                 <span class="text-muted">Not Assigned</span>
                                             }
                                         </td>
+                                        <td>@task.Status</td>
+                                        <td>
+                                            <a class="btn btn-sm btn-danger" asp-action="DeleteT" asp-route-id="@task.Id">Delete</a>
+                                            <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editTaskModal" data-id="@task.Id">
+                                                Edit
+                                            </button>
+                                        </td>
                                     </tr>
                                 }
                             }
                             else
                             {
-                                <tr>
-                                    <td colspan="3" class="text-center text-muted">No tasks available.</td>
-                                </tr>
+                                <tr><td colspan="6" class="text-center text-muted">No tasks available.</td></tr>
                             }
                         </tbody>
                     </table>
@@ -119,7 +170,7 @@
         </div>
     </div>
 </div>
-
+<!-------------------ProjectModal---------------------->
 <div class="modal fade" id="editProjectModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -149,6 +200,8 @@
         </div>
     </div>
 </div>
+<!-------------------TaskModal---------------------->
+
 <div class="modal fade" id="editTaskModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">

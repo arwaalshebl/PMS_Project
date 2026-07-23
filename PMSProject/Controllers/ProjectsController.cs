@@ -56,6 +56,8 @@ namespace PMSProject.Controllers
         
         public async Task<IActionResult> CreateP()
         {
+            //show the project list to slecest the parent project
+            ViewBag.ParentProjects = new SelectList(_context.Projects,"Id", "ProjectName");
             //show the developers only
             var developers = await _userManager.GetUsersInRoleAsync("Developer");
             ViewBag.Users = developers;
@@ -65,7 +67,7 @@ namespace PMSProject.Controllers
         
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateP(ProjectModel project , string selectedUserId)
+        public async Task<IActionResult> CreateP(ProjectModel project , string? selectedUserId , int? parentProjectId)
         {
             ModelState.Remove("AssignedUser");
             ModelState.Remove("UserId");
@@ -74,8 +76,10 @@ namespace PMSProject.Controllers
             {
                 if (!string.IsNullOrEmpty(selectedUserId))
                 {
-                    ///
-
+                    ///parent project
+                    project.ParentProjectID = parentProjectId;
+                    
+                    /// dev
                     var selectedUser = await _userManager.FindByIdAsync(selectedUserId);
                     if (selectedUser != null)
                     {
@@ -92,9 +96,11 @@ namespace PMSProject.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Dashboard", "Home");
             }
+            //show the project list to slecest the parent project
+            ViewBag.ParentProjects = new SelectList(_context.Projects, "Id", "ProjectName", parentProjectId);
             //show the developers only
-            var developers = await _userManager.GetUsersInRoleAsync("Developer");
-            ViewBag.Users = new SelectList(developers, "Id", "UserName");
+           // var developers = await _userManager.GetUsersInRoleAsync("Developer");
+            ViewBag.Users = await _userManager.GetUsersInRoleAsync("Developer");
             return View(project); 
         }
 
