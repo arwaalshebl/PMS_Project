@@ -59,6 +59,8 @@ public class TasksController : Controller
         var developers = await _userManager.GetUsersInRoleAsync("Developer");
         ViewBag.Users =new SelectList(developers,"Id","UserName");
 
+        ViewBag.SprintsList = new SelectList(_context.Sprints.ToList(), "Id", "SprintName");
+
 
 
 
@@ -68,7 +70,7 @@ public class TasksController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> CreateT(TaskModel task, int?projectId, string selectedUserId)
+    public async Task<IActionResult> CreateT(TaskModel task, int?projectId, string selectedUserId , int? sprint)
     {
         ModelState.Remove("projects");
         ModelState.Remove("AssignedUser");
@@ -106,6 +108,8 @@ public class TasksController : Controller
         
         ViewBag.Users = new SelectList(await _userManager.GetUsersInRoleAsync("Developer"), "Id", "UserName");
         ViewBag.ProjectsList = new SelectList(_context.Projects.ToList(), "Id", "ProjectName");
+        ViewBag.SprintsList = new SelectList(_context.Sprints.ToList(), "Id", "SprintName");
+
         return View(task);
     }
 

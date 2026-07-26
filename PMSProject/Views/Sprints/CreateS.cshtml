@@ -1,0 +1,27 @@
+﻿@model PMSProject.Models.SprintModel
+@{
+    ViewData["Title"] = "Add New Sprint";
+}
+<div class="container mt-4">
+    <div>
+        <a asp-action="IndexS" class="btn btn-primary">List Sprint</a>
+        <a asp-controller="Home" asp-action="Dashboard" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+    <h2>Add New Sprint</h2>
+    <form asp-action="CreateS" method="post">
+        <div class="mb-3">
+            <label asp-for="SprintName" class="form-label">Sprint Name</label>
+            <input asp-for="SprintName" class="form-control" placeholder="e.g. Sprint 1" required />
+        </div>
+        <div class="mb-3">
+            <label asp-for="StartON" class="form-label">Start Date</label>
+            <input asp-for="StartON" type="date" class="form-control"  />
+        </div>
+        <div class="mb-3">
+            <label asp-for="EndON" class="form-label">End Date</label>
+            <input asp-for="EndON" type="date" class="form-control"  />
+        </div>
+        <button type="submit" class="btn btn-primary">Save Sprint</button>
+        <a asp-controller="Home" asp-action="Dashboard" class="btn btn-secondary">Back to Dashboard</a>
+    </form>
+</div>

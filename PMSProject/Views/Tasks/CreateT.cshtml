@@ -37,7 +37,14 @@
                                 <!-- يمكنكِ جلب القائمة الأساسية هنا من الـ ViewBag إذا لزم الأمر -->
                             </select>
                         </div>
+                        <!-- Sprint Selection -->
 
+                        <div class="mb-3">
+                            <label class="form-label">Sprint</label>
+                            <select name="SprintId" id="modalSprintId" class="form-control" asp-items="ViewBag.SprintsList">
+                                <option value="">-- Select Sprint (Backlog) --</option>
+                            </select>
+                        </div>
                         <!-- Submit Button -->
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                             <a asp-controller="Home" asp-action="Dashboard" class="btn btn-secondary me-md-2">Back to Dashboard</a>

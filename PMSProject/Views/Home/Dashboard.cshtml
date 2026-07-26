@@ -4,6 +4,8 @@
 }
 <div class="container mt-4">
     <h2 class="mb-4">Dashboard</h2>
+    <a asp-controller="Sprints" asp-action="IndexS" class="btn btn-info">List Sprint</a>
+    <a asp-controller="Sprints" asp-action="CreateS" class="btn btn-info">+ Add New Sprint</a>
     <div class="row">
         <!-- Projects Section -->
         <div class="col">
@@ -109,8 +111,10 @@
                                 <th>Parent Project</th>
                                 <th>sub-Project</th>
                                 <th>Developer</th>
+                                <th>Sprint</th>
                                 <th>Status</th>
                                 <th>Actions</th>
+                                
                             </tr>
                         </thead>
                         <tbody>
@@ -121,9 +125,9 @@
                                     <tr>
                                         <td>
                                             <strong>@task.TaskName</strong><br />
-                                            <small class="text-muted">ID: @task.ProjectId /// ParentID: @task.Project?.ParentProjectID</small>
+                                            
                                         </td>
-                                        <!-- 2. المشروع الأب (Parent Project) -->
+                                        @* <!-- 2. المشروع الأب (Parent Project) --> *@
                                         <td>
                                             @if (task.Project?.ParentProject != null)
                                             {
@@ -134,7 +138,7 @@
                                                 <span class="text-dark">-- Main Project</span>
                                             }
                                         </td>
-                                        <!-- 3. المشروع الفرعي (Sub-Project) -->
+                                        @* <!-- 3. المشروع الفرعي (Sub-Project) --> *@
                                         <td>
                                             @if (task.Project != null)
                                             {
@@ -153,6 +157,16 @@
                                             else
                                             {
                                                 <span class="text-muted">Not Assigned</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (task.Sprint != null)
+                                            {
+                                                <span>@task.Sprint.SprintName</span>
+                                            }
+                                            else
+                                            {
+                                                <span>No Sprint </span>
                                             }
                                         </td>
                                         <td>@task.Status</td>
@@ -176,8 +190,54 @@
         </div>
     </div>
 </div>
+<!--------Sprint Section------->
+<div class="row">
+    <div class="col">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">Sprints Overview</h6>
+               
+                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addSprintModal">
+                    + Add Sprint (model)
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Sprint Name</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Sprints != null && Model.Sprints.Any())
+                            {
+                                @foreach (var sprint in Model.Sprints)
+                                {
+                                    <tr>
+                                        <td>@sprint.SprintName</td>
+                                        <td>@sprint.StartON?.ToShortDateString()</td>
+                                        <td>@sprint.EndON?.ToShortDateString()</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="3" class="text-center">No sprints available.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-<!------------------- Edit ProjectModal---------------------->
+@* <!------------------- Edit ProjectModal----------------------> *@
 <div class="modal fade" id="editProjectModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -228,9 +288,22 @@
                         <input type="text" id="TaskStatus" name="Status" class="form-control" />
                     </div>
                     <div class="mb-3">
+                        <label class="form-label">Project</label>
+                        <select name="ProjectId" id="modalProjectId" class="form-control" asp-items="@(new SelectList(Model.Projects, "Id", "ProjectName"))">
+                            <option value="">-- Select Project --</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
                         <label class="control-label">Assign Developer</label>
                         <select id="TaskUserId" name="selectedUserId" class="form-control" asp-items="@(new SelectList(ViewBag.Users, "Id", "UserName"))">
                             <option value="">-- Select Developer --</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Sprint</label>
+                        <select name="SprintId" id="modalSprintId" class="form-control" asp-items="@(new SelectList(ViewBag.SprintsList, "Id", "SprintName"))">
+                            <option value="">-- Select Sprint (Backlog) --</option>
                         </select>
                     </div>
                 </div>
@@ -276,10 +349,53 @@
                             <option value="">-- Unassigned --</option>
                         </select>
                     </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Sprint</label>
+                        <select name="SprintId" id="modalSprintId" class="form-control" asp-items="@(new SelectList(ViewBag.SprintsList, "Id", "SprintName"))">
+                            <option value="">-- Select Sprint (Backlog) --</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-primary">Save Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-------------------add sprint Modal---------------------->
+
+@* <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addSprintModal">
+    + Add New Sprint (Modal)
+</button>
+ *@
+<div class="modal fade" id="addSprintModal" tabindex="-1" aria-labelledby="addSprintModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-controller="Sprints" asp-action="CreateS" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addSprintModalLabel">Add New Sprint</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Sprint Name</label>
+                        <input type="text" name="SprintName" class="form-control" required placeholder="e.g. Sprint 1" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Start Date</label>
+                        <input type="date" name="StartON" class="form-control"  />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">End Date</label>
+                        <input type="date" name="EndON" class="form-control"  />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Sprint</button>
                 </div>
             </form>
         </div>

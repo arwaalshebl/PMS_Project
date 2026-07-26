@@ -1,0 +1,77 @@
+﻿@model IEnumerable<PMSProject.Models.SprintModel>
+@{
+    ViewData["Title"] = "Sprints Management";
+}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Sprints List</h2>
+        <div>
+            <a asp-action="CreateS" class="btn btn-primary">+ Add New Sprint</a>
+            <a asp-controller="Home" asp-action="Dashboard" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Sprint Name</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                @foreach (var sprint in Model)
+                {
+                    <tr>
+                        <td>@sprint.SprintName</td>
+                        <td>@sprint.StartON?.ToShortDateString()</td>
+                        <td>@sprint.EndON?.ToShortDateString()</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="3" class="text-center">No sprints found.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- زر يفتح المودل -->
+<button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addSprintModal">
+    + Add New Sprint (Modal)
+</button>
+<!-- نافذة الـ Modal -->
+<div class="modal fade" id="addSprintModal" tabindex="-1" aria-labelledby="addSprintModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="Create" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addSprintModalLabel">Add New Sprint</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Sprint Name</label>
+                        <input type="text" name="SprintName" class="form-control" required placeholder="e.g. Sprint 1" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Start Date</label>
+                        <input type="date" name="StartON" class="form-control"  />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">End Date</label>
+                        <input type="date" name="EndON" class="form-control"  />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Sprint</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

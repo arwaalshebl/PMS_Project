@@ -45,6 +45,7 @@ namespace PMSProject.Controllers
                 .Include(p => p.Project)
                       .ThenInclude(p => p.ParentProject)
                 .Include(t => t.AssignedUser)
+                .Include(s=>s.Sprint)
                 .ToListAsync();
 
             var allProjects = await _context.Projects
@@ -52,6 +53,8 @@ namespace PMSProject.Controllers
                 .Include(pa => pa.ParentProject)
                 .Include(s=>s.SubProjects)
                 .ToListAsync();
+            var sprints = await _context.Sprints.ToListAsync();
+
             List<TaskModel> filteredTasks = new List<TaskModel>();
             List<ProjectModel> filteredProjects = new List<ProjectModel>();
             
@@ -88,6 +91,7 @@ namespace PMSProject.Controllers
             var developers = await _userManager.GetUsersInRoleAsync("Developer");
             ViewBag.Users = developers;
             ViewBag.TaskList = allTasks;
+            ViewBag.SprintsList = _context.Sprints.ToList();
             return View(model);
         }
         [HttpGet]

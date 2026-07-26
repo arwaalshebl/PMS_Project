@@ -28,6 +28,8 @@ namespace PMSProject.Models
 
         //    member m-1 done
         // sprints 1-m
+        public int? SprintId { get; set; }
+        public SprintModel? Sprint { get; set; }
 
         public DateTime? EstimatedDate {  get; set; }
         public DateTime? StartedOn { get; set; }
