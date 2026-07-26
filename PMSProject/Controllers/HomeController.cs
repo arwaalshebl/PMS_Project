@@ -143,6 +143,17 @@ namespace PMSProject.Controllers
 
 
         }
+        [HttpPost]
+        public async Task<IActionResult> CreateTaskFromDashboard(TaskModel taskModel)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Tasks.Add(taskModel);
+                await _context.SaveChangesAsync();
+            }
+           
+            return RedirectToAction("Dashboard");
+        }
 
 
     }

@@ -65,7 +65,13 @@
                                             <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editProjectModal" data-id="@project.Id">
                                                 Edit
                                             </button>
-
+                                            <button type="button" class="btn btn-success btn-sm" 
+                                            data-bs-toggle="modal"
+                                                    data-bs-target="#addTaskModel"
+                                                    data-project-id="@project.Id"
+                                                  data-developer-id="@project.UserId">
+                                               Add Task
+                                            </button>
                                         </td>
                                     </tr>
                                 }
@@ -170,7 +176,8 @@
         </div>
     </div>
 </div>
-<!-------------------ProjectModal---------------------->
+
+<!------------------- Edit ProjectModal---------------------->
 <div class="modal fade" id="editProjectModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -200,7 +207,7 @@
         </div>
     </div>
 </div>
-<!-------------------TaskModal---------------------->
+<!-------------------edit TaskModal---------------------->
 
 <div class="modal fade" id="editTaskModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
@@ -235,6 +242,49 @@
         </div>
     </div>
 </div>
+<!-------------------add Task Modal---------------------->
+<div class="modal fade" id="addTaskModel" tabindex="-1" aria-labelledby="addTaskModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="CreateTaskFromDashboard" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addTaskModalLabel">Add New Task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Task Name</label>
+                        <input type="text" name="TaskName" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Project</label>
+                        <select name="ProjectId" id="modalProjectId" class="form-control" asp-items="@(new SelectList(Model.Projects, "Id", "ProjectName"))">
+                            <option value="">-- Select Project --</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select name="Status" class="form-control">
+                            <option value="NotStarted">Not Started</option>
+                            <option value="InProgress">In Progress</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Assign Developer</label>
+                        <select name="UserId" id="modalUserId" ="form-control" asp-items="@(new SelectList(ViewBag.Users, "Id", "UserName"))">
+                            <option value="">-- Unassigned --</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @section Scripts {
     <script>
         // فتح مودال المشروع وجلب بياناته وملء الحقول
@@ -257,6 +307,24 @@
                 $('#TaskStatus').val(data.status);
                 $('#TaskUserId').val(data.userId);
             });
+        });
+    </script>
+    <script>
+        var addTaskModal = document.getElementById('addTaskModel');
+        addTaskModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget; // الزر اللي انضغط
+               var projectId = button.getAttribute('data-project-id');
+               var developerId = button.getAttribute('data-developer-id'); // جلب مطور المشروع
+               // تحديد المشروع
+               var selectProject = addTaskModal.querySelector('#modalProjectId');
+               if (selectProject && projectId) {
+                   selectProject.value = projectId;
+               }
+               // تحديد المطور أوتوماتيكياً
+               var selectUser = addTaskModal.querySelector('#modalUserId');
+               if (selectUser && developerId) {
+                   selectUser.value = developerId;
+               }
         });
     </script>
 }
