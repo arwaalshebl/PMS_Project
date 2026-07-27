@@ -118,5 +118,25 @@ namespace PMSProject.Controllers
 
 
         }
+        [HttpGet]
+        public async Task<IActionResult> DetailsP(int id)
+        {
+           
+            var project = await _context.Projects
+                .Include(p => p.AssignedUser)
+                .Include(p => p.Tasks)
+                    .ThenInclude(t => t.Sprint)
+                    //here to get every task with his dev ==> later do when the statuse done put the dev name
+                .Include(p => p.Tasks)
+                    .ThenInclude(t => t.AssignedUser)
+                    //هنا اشوف هل العلاقه هذي تجيب لي المهام حتى لو كان المطورين الي مسكوا المشروع مختلفين او اسوي له انكلود من جدول البروجكت 
+                    
+                .FirstOrDefaultAsync(p => p.Id == id);
+            if (project == null)
+            {
+                return NotFound();
+            }
+            return View(project);
+        }
     }
 }

@@ -4,8 +4,7 @@
 }
 <div class="container mt-4">
     <h2 class="mb-4">Dashboard</h2>
-    <a asp-controller="Sprints" asp-action="IndexS" class="btn btn-info">List Sprint</a>
-    <a asp-controller="Sprints" asp-action="CreateS" class="btn btn-info">+ Add New Sprint</a>
+
     <div class="row">
         <!-- Projects Section -->
         <div class="col">
@@ -71,9 +70,12 @@
                                             data-bs-toggle="modal"
                                                     data-bs-target="#addTaskModel"
                                                     data-project-id="@project.Id"
-                                                  data-developer-id="@project.UserId">
+                                                    data-developer-id="@project.UserId">
                                                Add Task
                                             </button>
+                                            <a asp-controller="Projects" asp-action="DetailsP" asp-route-id="@project.Id" class="btn btn-sm btn-primary ">
+                                                Detalis
+                                            </a>
                                         </td>
                                     </tr>
                                 }
@@ -191,20 +193,22 @@
     </div>
 </div>
 <!--------Sprint Section------->
+<a asp-controller="Sprints" asp-action="IndexS" class="btn btn-info rounded-pill px-4">List Sprint</a>
+<a asp-controller="Sprints" asp-action="CreateS" class="btn btn-info rounded-pill px-4">+ Add New Sprint </a>
 <div class="row">
     <div class="col">
         <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                <h6 class="m-0 font-weight-bold text-primary">Sprints Overview</h6>
-               
-                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addSprintModal">
+            <div class="card-header py-3 bg-info text-white d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold">Sprints Overview</h6>
+                
+                <button type="button" class="btn btn-sm btn-light text-info fw-bold" data-bs-toggle="modal" data-bs-target="#addSprintModal">
                     + Add Sprint (model)
                 </button>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-bordered" width="100%" cellspacing="0">
-                        <thead>
+                    <table class="table table-bordered table-striped align-middle" width="100%" cellspacing="0">
+                        <thead class="table-info">
                             <tr>
                                 <th>Sprint Name</th>
                                 <th>Start Date</th>
@@ -217,7 +221,7 @@
                                 @foreach (var sprint in Model.Sprints)
                                 {
                                     <tr>
-                                        <td>@sprint.SprintName</td>
+                                        <td class="fw-bold">@sprint.SprintName</td>
                                         <td>@sprint.StartON?.ToShortDateString()</td>
                                         <td>@sprint.EndON?.ToShortDateString()</td>
                                     </tr>
@@ -226,7 +230,7 @@
                             else
                             {
                                 <tr>
-                                    <td colspan="3" class="text-center">No sprints available.</td>
+                                    <td colspan="3" class="text-center text-muted">No sprints available.</td>
                                 </tr>
                             }
                         </tbody>
@@ -284,8 +288,12 @@
                         <input type="text" id="TaskName" name="TaskName" class="form-control" />
                     </div>
                     <div class="mb-3">
-                        <label class="control-label">Status</label>
-                        <input type="text" id="TaskStatus" name="Status" class="form-control" />
+                        <label class="form-label">Status</label>
+                        <select name="Status" class="form-control">
+                            <option value="NotStarted">Not Started</option>
+                            <option value="InProgress">In Progress</option>
+                            <option value="Completed">Completed</option>
+                        </select>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Project</label>
@@ -345,11 +353,10 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Assign Developer</label>
-                        <select name="UserId" id="modalUserId" ="form-control" asp-items="@(new SelectList(ViewBag.Users, "Id", "UserName"))">
+                        <select name="UserId" id="modalUserId" class="form-control" asp-items="@(new SelectList(ViewBag.Users, "Id", "UserName"))">
                             <option value="">-- Unassigned --</option>
                         </select>
                     </div>
-
                     <div class="mb-3">
                         <label class="form-label">Sprint</label>
                         <select name="SprintId" id="modalSprintId" class="form-control" asp-items="@(new SelectList(ViewBag.SprintsList, "Id", "SprintName"))">
@@ -367,10 +374,6 @@
 </div>
 <!-------------------add sprint Modal---------------------->
 
-@* <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addSprintModal">
-    + Add New Sprint (Modal)
-</button>
- *@
 <div class="modal fade" id="addSprintModal" tabindex="-1" aria-labelledby="addSprintModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -403,7 +406,6 @@
 </div>
 @section Scripts {
     <script>
-        // فتح مودال المشروع وجلب بياناته وملء الحقول
         $('#editProjectModal').on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget);
             var id = button.data('id');
@@ -413,7 +415,6 @@
                 $('#ProjectUserId').val(data.userId);
             });
         });
-        // فتح مودال المهمة وجلب بياناتها وملء الحقول
         $('#editTaskModal').on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget);
             var id = button.data('id');
@@ -428,19 +429,19 @@
     <script>
         var addTaskModal = document.getElementById('addTaskModel');
         addTaskModal.addEventListener('show.bs.modal', function (event) {
-            var button = event.relatedTarget; // الزر اللي انضغط
-               var projectId = button.getAttribute('data-project-id');
-               var developerId = button.getAttribute('data-developer-id'); // جلب مطور المشروع
-               // تحديد المشروع
-               var selectProject = addTaskModal.querySelector('#modalProjectId');
-               if (selectProject && projectId) {
-                   selectProject.value = projectId;
-               }
-               // تحديد المطور أوتوماتيكياً
-               var selectUser = addTaskModal.querySelector('#modalUserId');
-               if (selectUser && developerId) {
-                   selectUser.value = developerId;
-               }
+            var button = event.relatedTarget; 
+            var projectId = button.getAttribute('data-project-id');
+            var developerId = button.getAttribute('data-developer-id');   
+            
+            var selectProject = addTaskModal.querySelector('#modalProjectId');
+            if (selectProject && projectId) {
+                selectProject.value = projectId;
+            }
+            
+            var selectUser = addTaskModal.querySelector('#modalUserId');
+            if (selectUser) {
+                selectUser.value = developerId ? developerId : "";
+            }
         });
     </script>
 }

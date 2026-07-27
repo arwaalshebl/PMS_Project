@@ -1,0 +1,74 @@
+﻿@model PMSProject.Models.ProjectModel
+<div class="card shadow mb-4">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">@Model.ProjectName</h4>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                
+                <p><strong>Weight / Priority:</strong> <span class="badge bg-info">@Model.Weight</span></p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Owner / Member:</strong> @(Model.AssignedUser?.UserName ?? "Unassigned")</p>
+            </div>
+        </div>
+        <div class="mt-2">
+            <strong>Notes / Details:</strong>
+            <p class="text-muted">@(Model.Note ?? "No notes provided.")</p>
+        </div>
+    </div>
+</div>
+<!--task table-->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h5 class="m-0 font-weight-bold text-primary">Tasks Related to this Project</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped" width="100%" cellspacing="0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Task Title</th>
+                        <th>Status</th>
+                       @*  <th>Stage</th> *@
+                        <th>Sprint</th>
+                        <th>Assigned Developer</th>
+                       @*  <th>Estimated Date</th> *@
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Tasks != null && Model.Tasks.Any())
+                    {
+                        @foreach (var task in Model.Tasks)
+                        {
+                            <tr>
+                                <td>@task.TaskName</td>
+                                <td><span class="badge bg-secondary">@task.Status</span></td>
+                               @*  <td>@task.Stage</td> *@
+                                <td>
+                                    @if (task.Sprint != null)
+                                    {
+                                        <span class="badge bg-info text-dark">@task.Sprint.SprintName</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Backlog</span>
+                                    }
+                                </td>
+                                <td>@(task.AssignedUser?.UserName ?? "Unassigned")</td>
+                              @*   <td>@task.EstimatedDate.ToShortDateString()</td> *@
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center">No tasks found for this project.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

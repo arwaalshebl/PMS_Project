@@ -85,7 +85,9 @@ namespace PMSProject.Controllers
             var model = new TaskAndProjectViewModel
             {
                 Tasks = filteredTasks,
-                Projects = filteredProjects
+                Projects = filteredProjects,
+                Sprints = _context.Sprints.ToList()
+
             };
             //show the developers only
             var developers = await _userManager.GetUsersInRoleAsync("Developer");
