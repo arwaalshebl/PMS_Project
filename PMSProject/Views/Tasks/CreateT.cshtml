@@ -25,7 +25,7 @@
                             <label class="form-label font-weight-bold">Project</label>
                             <select name="projectId" id="ProjectId" class="form-select" asp-items="ViewBag.ProjectsList">
                                 <option value="">-- Select Project --</option>
-                                <!-- يمكنكِ جلب القائمة الأساسية هنا من الـ ViewBag إذا لزم الأمر -->
+                              
                             </select>
                         </div>
 
@@ -34,7 +34,7 @@
                             <label class="form-label font-weight-bold">Developer</label>
                             <select name="selectedUserId" id="DeveloperId" class="form-select" asp-items="ViewBag.Users">
                                 <option value="">-- Select Developer --</option>
-                                <!-- يمكنكِ جلب القائمة الأساسية هنا من الـ ViewBag إذا لزم الأمر -->
+                             
                             </select>
                         </div>
                         <!-- Sprint Selection -->
@@ -69,13 +69,11 @@
                 projSelect.addEventListener("change", function () {
                     let projectId = this.value;
 
-                    // إذا لم يتم اختيار مشروع، نقوم بتفريغ قائمة المطورين
                     if (!projectId) {
                         devSelect.innerHTML = '<option value="">-- Select Developer --</option>';
                         return;
                     }
 
-                    // جلب المطورين التابعين لهذا المشروع فقط
                     fetch(`/Tasks/GetDevelopersByProject?projectId=${projectId}`)
                         .then(response => response.json())
                         .then(developers => {

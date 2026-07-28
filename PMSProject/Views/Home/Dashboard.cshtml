@@ -14,6 +14,9 @@
             <a asp-controller="Projects" asp-action="CreateP" class="btn btn-primary rounded-pill px-4">
                 Submit New Project
             </a>
+            <button type="button" class="btn btn-outline-primary rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#addProjectModal">
+                + Add project (model)
+            </button>
             <div class="card shadow-sm mb-4">
                 <div class="card-header bg-primary text-white">
                     <h4 class="mb-0">Projects</h4>
@@ -271,6 +274,50 @@
         </div>
     </div>
 </div>
+<!--------------Add project Model-------------------->
+<div class="modal fade" id="addProjectModal" tabindex="-1" aria-labelledby="addProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="addProjectModalLabel">Add New Project</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-controller="Projects" asp-action="CreateP" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Project Name</label>
+                        <input name="ProjectName" type="text" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Parent Project: (Optional)</label>
+                        <select name="parentProjectId" class="form-control" asp-items="@( new SelectList(ViewBag.ParentProjects, "Id", "ProjectName"))">
+                            <option value=""> --None (Main Project) -- </option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="control-label">Assign Developer</label>
+                        <select id="ProjectUserId" name="selectedUserId" class="form-control" asp-items="@(new SelectList(ViewBag.Users, "Id", "UserName"))">
+                            <option value="">-- Select Developer --</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Weight (1-10)</label>
+                        <input name="Weight" type="number" class="form-control" min="1" max="10"  />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Notes</label>
+                        <textarea name="Note" class="form-control" rows="3"></textarea>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Save Project</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 <!-------------------edit TaskModal---------------------->
 
 <div class="modal fade" id="editTaskModal" tabindex="-1" aria-hidden="true">
@@ -323,7 +370,7 @@
         </div>
     </div>
 </div>
-<!-------------------add Task Modal---------------------->
+<!-------------------add Task Modal reletd to project---------------------->
 <div class="modal fade" id="addTaskModel" tabindex="-1" aria-labelledby="addTaskModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -348,7 +395,7 @@
                         <select name="Status" class="form-control">
                             <option value="NotStarted">Not Started</option>
                             <option value="InProgress">In Progress</option>
-                            <option value="Completed">Completed</option>
+                            <option value="Done">Done</option>
                         </select>
                     </div>
                     <div class="mb-3">

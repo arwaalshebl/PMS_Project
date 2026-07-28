@@ -10,6 +10,8 @@ namespace PMSProject.Models
     public class TaskModel
     {
         public int Id { get; set; }
+
+        //    member m-1 done
         public string? UserId { get; set; }
         [ForeignKey("UserId")]
         public IdentityUser? AssignedUser { get; set; }
@@ -26,7 +28,6 @@ namespace PMSProject.Models
         public int? ProjectId { get; set; }
         public  ProjectModel? Project { get; set; }
 
-        //    member m-1 done
         // sprints 1-m
         public int? SprintId { get; set; }
         public SprintModel? Sprint { get; set; }

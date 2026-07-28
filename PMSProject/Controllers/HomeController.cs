@@ -55,6 +55,7 @@ namespace PMSProject.Controllers
                 .ToListAsync();
             var sprints = await _context.Sprints.ToListAsync();
 
+
             List<TaskModel> filteredTasks = new List<TaskModel>();
             List<ProjectModel> filteredProjects = new List<ProjectModel>();
             
@@ -86,7 +87,7 @@ namespace PMSProject.Controllers
             {
                 Tasks = filteredTasks,
                 Projects = filteredProjects,
-                Sprints = _context.Sprints.ToList()
+                Sprints = sprints
 
             };
             //show the developers only
@@ -94,6 +95,9 @@ namespace PMSProject.Controllers
             ViewBag.Users = developers;
             ViewBag.TaskList = allTasks;
             ViewBag.SprintsList = _context.Sprints.ToList();
+
+            ViewBag.ParentProjects = allProjects.Where(pp=>pp.ParentProjectID == null).ToList();
+            
             return View(model);
         }
         [HttpGet]
