@@ -105,6 +105,14 @@ public class TasksController : Controller
             await _context.SaveChangesAsync();
             return RedirectToAction("Dashboard", "Home");
         }
+        else
+        {
+            var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+            foreach (var error in errors) 
+            {
+                System.Diagnostics.Debug.WriteLine("---------MODEL STATE ERROR:-------   "+error);
+            }
+        }
         
         ViewBag.Users = new SelectList(await _userManager.GetUsersInRoleAsync("Developer"), "Id", "UserName");
         ViewBag.ProjectsList = new SelectList(_context.Projects.ToList(), "Id", "ProjectName");
@@ -152,6 +160,26 @@ public class TasksController : Controller
             .Distinct()
             .ToList();
         return Json(developers);
+    }
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditT(int id, TaskModel task, string selectedUserId)
+    {
+        if (id != task.Id) return NotFound();
+        ModelState.Remove("AssignedUser");
+        ModelState.Remove("UserId");
+        if (ModelState.IsValid)
+        {
+            task.UserId = selectedUserId;
+            task.AssignedUser = !string.IsNullOrEmpty(selectedUserId) ? await _userManager.FindByIdAsync(selectedUserId) : null;
+            _context.Update(task);
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Dashboard", "Home");
+        }
+        ViewBag.Users = new SelectList(await _userManager.GetUsersInRoleAsync("Developer"), "Id", "UserName", selectedUserId);
+        return RedirectToAction("Dashboard", "Home");
+
+
     }
 
 }

@@ -74,7 +74,7 @@
                                                     data-bs-target="#addTaskModel"
                                                     data-project-id="@project.Id"
                                                     data-developer-id="@project.UserId">
-                                               Add Task
+                                               Add Task(model)
                                             </button>
                                             <a asp-controller="Projects" asp-action="DetailsP" asp-route-id="@project.Id" class="btn btn-sm btn-primary ">
                                                 Detalis
@@ -248,7 +248,7 @@
 <div class="modal fade" id="editProjectModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form asp-action="EditProject" method="post">
+            <form asp-controller="Projects" asp-action="EditP" method="post">
                 <div class="modal-header">
                     <h5 class="modal-title">Edit Project</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -323,7 +323,7 @@
 <div class="modal fade" id="editTaskModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form asp-action="EditTask" method="post">
+            <form asp-controller="Tasks" asp-action="EditT" method="post">
                 <div class="modal-header">
                     <h5 class="modal-title">Edit Task</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -374,9 +374,9 @@
 <div class="modal fade" id="addTaskModel" tabindex="-1" aria-labelledby="addTaskModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form asp-action="CreateTaskFromDashboard" method="post">
+            <form asp-controller="Tasks" asp-action="CreateT" method="post">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addTaskModalLabel">Add New Task</h5>
+                    <h5 class="modal-title" id="addTaskModalLabel">Add New Task(model)</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -386,7 +386,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Project</label>
-                        <select name="ProjectId" id="modalProjectId" class="form-control" asp-items="@(new SelectList(Model.Projects, "Id", "ProjectName"))">
+                        <select name="projectId" id="modalProjectId" class="form-control" asp-items="@(new SelectList(Model.Projects, "Id", "ProjectName"))">
                             <option value="">-- Select Project --</option>
                         </select>
                     </div>
@@ -400,13 +400,13 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Assign Developer</label>
-                        <select name="UserId" id="modalUserId" class="form-control" asp-items="@(new SelectList(ViewBag.Users, "Id", "UserName"))">
+                        <select name="selectedUserId" id="modalUserId" class="form-control" asp-items="@(new SelectList(ViewBag.Users, "Id", "UserName"))">
                             <option value="">-- Unassigned --</option>
                         </select>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Sprint</label>
-                        <select name="SprintId" id="modalSprintId" class="form-control" asp-items="@(new SelectList(ViewBag.SprintsList, "Id", "SprintName"))">
+                        <select name="sprint" id="modalSprintId" class="form-control" asp-items="@(new SelectList(ViewBag.SprintsList, "Id", "SprintName"))">
                             <option value="">-- Select Sprint (Backlog) --</option>
                         </select>
                     </div>

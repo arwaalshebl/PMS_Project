@@ -138,5 +138,23 @@ namespace PMSProject.Controllers
             }
             return View(project);
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditP(int id, ProjectModel project, string selectedUserId)
+        {
+            if (id != project.Id) return NotFound();
+            ModelState.Remove("AssignedUser");
+            ModelState.Remove("UserId");
+            if (ModelState.IsValid)
+            {
+                project.UserId = selectedUserId;
+                project.AssignedUser = !string.IsNullOrEmpty(selectedUserId) ? await _userManager.FindByIdAsync(selectedUserId) : null;
+                _context.Update(project);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Dashboard", "Home");
+            }
+            ViewBag.Users = new SelectList(await _userManager.GetUsersInRoleAsync("Developer"), "Id", "UserName", selectedUserId);
+            return RedirectToAction("Dashboard", "Home");
+        }
     }
 }
