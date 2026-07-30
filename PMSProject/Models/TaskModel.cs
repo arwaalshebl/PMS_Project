@@ -48,14 +48,13 @@ namespace PMSProject.Models
     public enum TaskStatus
     {
         [Display(Name = "Not Started")] 
-        NotStarted,
-        Later,
+        NotStarted=0,
         [Display(Name = "On Hold")]
-        OnHold,
+        OnHold=1,
         [Display(Name = "In Progress")]
-        InProgress,
-        Done,
-        Canceled
+        InProgress=2,
+        Done=3,
+        Canceled=4
     }
 
     public enum TaskStage

@@ -70,7 +70,7 @@ public class TasksController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> CreateT(TaskModel task, int?projectId, string selectedUserId , int? sprint)
+    public async Task<IActionResult> CreateT(TaskModel task, int?projectId, string? selectedUserId , int? sprint)
     {
         ModelState.Remove("projects");
         ModelState.Remove("AssignedUser");
@@ -152,18 +152,28 @@ public class TasksController : Controller
     [HttpGet]
     public IActionResult GetDevelopersByProject(int projectId)
     {
-        //devloper list for the selected project
-        var developers = _context.Projects
+        // 1. نبحث عن المشروع المطلوب مع جلب المطور المرتبط به مباشرة
+        var project = _context.Projects
             .Where(p => p.Id == projectId)
-            .Select(p => p.AssignedUser)
-            .Select(u => new { u.Id, u.UserName })
-            .Distinct()
-            .ToList();
+            .Select(p => p.AssignedUser) // أو p.User حسب اسم المودل عندك للمطور
+            .FirstOrDefault();
+        // 2. إذا لم يكن هناك مطور مرتبط بهذا المشروع، نرجع لستة فاضية
+
+        if (project == null)
+        {
+
+            return Json(new List<object>());
+        }
+        // 3. نضع المطور في لستة (لأن الجافاسكريبت يتوقع لستة options) ونرجعه
+        var developers = new List<object>
+   {
+       new { id = project.Id, userName = project.UserName }
+   };
         return Json(developers);
     }
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EditT(int id, TaskModel task, string selectedUserId)
+    public async Task<IActionResult> EditT(int id, TaskModel task, string? selectedUserId)
     {
         if (id != task.Id) return NotFound();
         ModelState.Remove("AssignedUser");

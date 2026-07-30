@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using PMSProject.Data;
 using PMSProject.Models;
 using System.Diagnostics;
+using System.Text.Json;
 
 namespace PMSProject.Controllers
 {
@@ -58,7 +59,9 @@ namespace PMSProject.Controllers
 
             List<TaskModel> filteredTasks = new List<TaskModel>();
             List<ProjectModel> filteredProjects = new List<ProjectModel>();
-            
+
+
+
             if (User.Identity != null && User.Identity.IsAuthenticated)
             {
                
@@ -79,15 +82,22 @@ namespace PMSProject.Controllers
                         filteredProjects = allProjects
                             .Where(t => t.UserId == user.Id)
                             .ToList();
+
+
+
                     }
                 }
             }
-          
+            var directTasks = filteredTasks.Where(t => t.ProjectId == null).ToList();
+            var projectTasks = filteredTasks.Where(t => t.ProjectId != null).ToList();
+
             var model = new TaskAndProjectViewModel
             {
                 Tasks = filteredTasks,
                 Projects = filteredProjects,
-                Sprints = sprints
+                Sprints = sprints,
+                DirectTasks = directTasks,
+                ProjectTasks = projectTasks
 
             };
             //show the developers only
@@ -112,6 +122,7 @@ namespace PMSProject.Controllers
         {
             var task = await _context.Tasks.FindAsync(id);
             if (task == null) return NotFound();
+   
             return Json(task);
         }
 
