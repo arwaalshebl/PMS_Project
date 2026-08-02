@@ -1,4 +1,6 @@
-﻿namespace PMSProject.Models
+﻿using Microsoft.AspNetCore.Identity;
+
+namespace PMSProject.Models
 {
     public class TaskAndProjectViewModel
     {
@@ -11,5 +13,7 @@
         public List<ProjectModel> Projects { get; set; } 
 
         public List<SprintModel> Sprints { get; set; }
+
+        public List<IdentityUser> Users { get; set; }
     }
 }

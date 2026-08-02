@@ -56,6 +56,8 @@ namespace PMSProject.Controllers
                 .ToListAsync();
             var sprints = await _context.Sprints.ToListAsync();
 
+            var members= await _userManager.Users.ToListAsync();
+
 
             List<TaskModel> filteredTasks = new List<TaskModel>();
             List<ProjectModel> filteredProjects = new List<ProjectModel>();
@@ -97,7 +99,8 @@ namespace PMSProject.Controllers
                 Projects = filteredProjects,
                 Sprints = sprints,
                 DirectTasks = directTasks,
-                ProjectTasks = projectTasks
+                ProjectTasks = projectTasks,
+                Users=members
 
             };
             //show the developers only
