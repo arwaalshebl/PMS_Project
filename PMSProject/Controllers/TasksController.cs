@@ -191,5 +191,19 @@ public class TasksController : Controller
 
 
     }
+    [HttpPost]
+    public IActionResult UpdateTaskStatus(int taskId, int newStatus)
+    {
+        var task = _context.Tasks.Find(taskId);
+        if (task == null)
+        {
+            return Json(new { success = false, message = "Task not found" });
+        }
+
+
+        task.Status = (PMSProject.Models.TaskStatus)newStatus; 
+        _context.SaveChanges();
+        return Json(new { success = true, message = "Status updated successfully" });
+    }
 
 }

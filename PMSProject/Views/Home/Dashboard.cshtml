@@ -223,7 +223,18 @@
                                                 <span>No Sprint </span>
                                             }
                                         </td>
-                                        <td><span class="badge bg-secondary">@task.Status</span></td>
+                                        @* <td><span class="badge bg-secondary">@task.Status</span></td> *@
+                                        <td>
+                                            <select class="form-select form-select-sm status-dropdown shadow-sm" data-task-id="@task.Id">
+                                                @* <!--change statuse depends on start and finish date--> *@
+                                                <option value="3" selected="@(task.FinishedOn != null)">Done</option>
+                                                <option value="2" selected="@(task.StartedOn != null)">In Progress</option>
+                                                @* <!--other statuse--> *@
+                                                <option value="0" selected="@(task.Status == PMSProject.Models.TaskStatus.NotStarted)">Not Started</option>
+                                                <option value="1" selected="@(task.Status == PMSProject.Models.TaskStatus.OnHold)">On Hold</option>
+                                                <option value="4" selected="@(task.Status == PMSProject.Models.TaskStatus.Canceled)">Canceled</option>
+                                            </select>
+                                        </td>
                                         <td>@task.EstimatedDate?.ToString("yyyy-MM-dd")</td>
                                         <td>@task.StartedOn?.ToString("yyyy-MM-dd")</td>
                                         <td>@task.FinishedOn?.ToString("yyyy-MM-dd")</td>
@@ -310,7 +321,7 @@
                                             }
                                             else
                                             {
-                                                <span class="text-dark">-- Main Project</span>
+                                                <span class="text-dark">@task.Project.ProjectName</span>
                                             }
                                         </td>
                                         @* <!-- 3. المشروع الفرعي (Sub-Project) --> *@
@@ -346,7 +357,17 @@
                                                 <span>No Sprint </span>
                                             }
                                         </td>
-                                        <td><span class="badge bg-secondary">@task.Status</span></td>
+                                       @*  <td><span class="badge bg-secondary">@task.Status</span></td> *@
+                                       <td>
+                                            <select class="form-select form-select-sm status-dropdown shadow-sm" data-task-id="@task.Id">
+                                               
+                                                <option value="0" selected="@(task.Status == PMSProject.Models.TaskStatus.NotStarted)">Not Started</option>
+                                                <option value="1" selected="@(task.Status == PMSProject.Models.TaskStatus.OnHold)">On Hold</option>
+                                                <option value="2" selected="@(task.Status == PMSProject.Models.TaskStatus.InProgress)">In Progress</option>
+                                                <option value="3" selected="@(task.Status == PMSProject.Models.TaskStatus.Done)">Done</option>
+                                                <option value="4" selected="@(task.Status ==  PMSProject.Models.TaskStatus.Canceled)">Canceled</option>
+                                            </select>
+                                       </td>
 
                                         <td>@task.EstimatedDate?.ToString("yyyy-MM-dd")</td>
                                         <td>@task.StartedOn?.ToString("yyyy-MM-dd")</td>
@@ -856,6 +877,37 @@
  
 
    
+    </script>
+    <script>
+        $(document).on('change', '.status-dropdown', function () {
+           let $dropdown = $(this);
+           let taskId = $dropdown.data('task-id');
+           let newStatus = $dropdown.val();
+           // إرسال الطلب عبر الـ AJAX
+           $.ajax({
+               url: '/Tasks/UpdateTaskStatus',
+               type: 'POST',
+               data: {
+                   taskId: taskId,
+                   newStatus: newStatus
+               },
+               success: function (response) {
+                   console.log("server resonse :",response);
+                   if (response.success) {
+                       console.log("Status updated successfully");
+                   } else {
+                       alert("Error: " + response.message);
+                   }
+               },
+               error: function (xhr) {
+                   console.error("AJAX Error:", xhr.responseText);
+                   alert("An error occurred while updating the status.");
+               }
+           });
+        });
+      
+
+
     </script>
     
 }
