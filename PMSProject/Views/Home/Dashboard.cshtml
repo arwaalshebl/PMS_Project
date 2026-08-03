@@ -174,8 +174,7 @@
                         <thead>
                             <tr>
                                 <th>Task Title</th>
-                                <th>Parent Project</th>
-                                <th>sub-Project</th>
+                               
                                 <th>Stage</th> 
                                 <th>Developer</th>
                                 <th>Sprint</th>
@@ -199,10 +198,19 @@
                                             <strong>@task.TaskName</strong><br />
 
                                         </td>
-                                        <td>-</td>
-                                        <td>-</td>
+                                        
 
-                                        <td><span class="badge bg-secondary">@task.Stage</span></td> @* stage *@
+                                        <td>
+                                            @if (task.Stage == TaskStage.Sprint)
+                                            {
+                                                <span class="badge bg-info">Sprint</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">BackLog</span>
+
+                                            }
+                                        </td>
                                         <td>
                                             @if (task.AssignedUser != null)
                                             {
@@ -223,7 +231,6 @@
                                                 <span>No Sprint </span>
                                             }
                                         </td>
-                                        @* <td><span class="badge bg-secondary">@task.Status</span></td> *@
                                         <td>
                                             <select class="form-select form-select-sm status-dropdown shadow-sm" data-task-id="@task.Id">
                                                     <option value="0" selected="@(task.Status == PMSProject.Models.TaskStatus.NotStarted)">Not Started</option>
@@ -236,17 +243,20 @@
                                         <td>@task.EstimatedDate?.ToString("yyyy-MM-dd")</td>
                                         <td>@task.StartedOn?.ToString("yyyy-MM-dd")</td>
                                         <td>@task.FinishedOn?.ToString("yyyy-MM-dd")</td>
-                                        <td></td> @* Over Due  *@
-                                        @*                                         <td>
-                                            @if (task.EstimatedDate < DateTime.Now && task.Status != "Done")
+                             
+                                         <td>
+                                            @* Over Due  *@
+                                            @if (task.EstimatedDate.HasValue 
+                                            && task.EstimatedDate.Value.Date < DateTime.Now.Date
+                                            && task.Status != PMSProject.Models.TaskStatus.Done)
                                             {
-                                                <span class="text-danger fw-bold">متأخر</span>
+                                                <span class="text-danger fw-bold">Over Due</span>
                                             }
                                             else
                                             {
-                                                <span class="text-success">منتظم</span>
+                                                <span class="text-secondary">On Track</span>
                                             }
-                                        </td> *@
+                                        </td>
                                         <td>
                                             <a class="btn btn-sm btn-danger" asp-controller="Tasks" asp-action="DeleteT" asp-route-id="@task.Id">Delete</a>
                                             <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editTaskModal" data-id="@task.Id">
@@ -365,7 +375,6 @@
                                                 <span>No Sprint </span>
                                             }
                                         </td>
-                                       @*  <td><span class="badge bg-secondary">@task.Status</span></td> *@
                                        <td>
                                             <select class="form-select form-select-sm status-dropdown shadow-sm" data-task-id="@task.Id">
                                                
@@ -380,17 +389,20 @@
                                         <td>@task.EstimatedDate?.ToString("yyyy-MM-dd")</td>
                                         <td>@task.StartedOn?.ToString("yyyy-MM-dd")</td>
                                         <td>@task.FinishedOn?.ToString("yyyy-MM-dd")</td>
-                                        <td></td> @* Over Due  *@
-@*                                         <td>
-                                            @if (task.EstimatedDate < DateTime.Now && task.Status != "Done")
+                                      
+                                        <td>
+                                            @* Over Due  *@
+                                            @if (task.EstimatedDate.HasValue
+                                            && task.EstimatedDate.Value.Date < DateTime.Now.Date
+                                            && task.Status != PMSProject.Models.TaskStatus.Done)
                                             {
-                                                <span class="text-danger fw-bold">متأخر</span>
+                                                <span class="text-danger fw-bold">Over Due</span>
                                             }
                                             else
                                             {
-                                                <span class="text-success">منتظم</span>
+                                                <span class="text-secondary">On Track</span>
                                             }
-                                        </td> *@
+                                        </td>
                                         <td>
                                             <a class="btn btn-sm btn-danger" asp-controller="Tasks" asp-action="DeleteT" asp-route-id="@task.Id">Delete</a>
                                             <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editTaskModal"

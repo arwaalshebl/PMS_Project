@@ -15,7 +15,7 @@
         </div>
         <div class="mt-2">
             <strong>Notes / Details:</strong>
-            <p class="text-bg-dark">@(Model.Note ?? "No notes provided.")</p>
+            <p class="text-bg-light">@(Model.Note ?? "No notes provided.")</p>
         </div>
     </div>
 </div>
@@ -27,14 +27,19 @@
     <div class="card-body">
         <div class="table-responsive">
             <table class="table table-bordered table-striped" width="100%" cellspacing="0">
-                <thead class="table-dark">
+                <thead class="text-dark">
                     <tr>
                         <th>Task Title</th>
-                        <th>Status</th>
-                       @*  <th>Stage</th> *@
+                        <th>Stage</th> <!--new-->
+                        <th>Developer</th>
                         <th>Sprint</th>
-                        <th>Assigned Developer</th>
-                       @*  <th>Estimated Date</th> *@
+                        <th>Status</th>
+                        <th>Estimated Date</th><!--new-->
+                        <th>Started On</th><!--new-->
+                        <th>Finished On</th><!--new-->
+                        <th>Over Due</th><!--new     not in taskmodel-->
+                        <th>Actions</th>
+
                     </tr>
                 </thead>
                 <tbody>
@@ -43,21 +48,73 @@
                         @foreach (var task in Model.Tasks)
                         {
                             <tr>
-                                <td>@task.TaskName</td>
-                                <td><span class="badge bg-secondary">@task.Status</span></td>
-                               @*  <td>@task.Stage</td> *@
                                 <td>
-                                    @if (task.Sprint != null)
+                                    <strong>@task.TaskName</strong><br />
+
+                                </td>
+                                <td>
+                                    @if (task.Stage == TaskStage.Sprint)
                                     {
-                                        <span class="badge bg-info text-dark">@task.Sprint.SprintName</span>
+                                        <span class="badge bg-info">Sprint</span>
                                     }
                                     else
                                     {
-                                        <span class="text-muted">Backlog</span>
+                                        <span class="badge bg-secondary">BackLog</span>
+
                                     }
                                 </td>
-                                <td>@(task.AssignedUser?.UserName ?? "Unassigned")</td>
-                              @*   <td>@task.EstimatedDate.ToShortDateString()</td> *@
+                                <td>
+                                    @if (task.AssignedUser != null)
+                                    {
+                                        @task.AssignedUser.UserName
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Not Assigned</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (task.Sprint != null)
+                                    {
+                                        <span>@task.Sprint.SprintName</span>
+                                    }
+                                    else
+                                    {
+                                        <span>No Sprint </span>
+                                    }
+                                </td>
+                                <td>
+                                    <select class="form-select form-select-sm status-dropdown shadow-sm" data-task-id="@task.Id">
+
+                                        <option value="0" selected="@(task.Status == PMSProject.Models.TaskStatus.NotStarted)">Not Started</option>
+                                        <option value="1" selected="@(task.Status == PMSProject.Models.TaskStatus.OnHold)">On Hold</option>
+                                        <option value="2" selected="@(task.Status == PMSProject.Models.TaskStatus.InProgress)">In Progress</option>
+                                        <option value="3" selected="@(task.Status == PMSProject.Models.TaskStatus.Done)">Done</option>
+                                        <option value="4" selected="@(task.Status == PMSProject.Models.TaskStatus.Canceled)">Canceled</option>
+                                    </select>
+                                </td>
+
+                                <td>@task.EstimatedDate?.ToString("yyyy-MM-dd")</td>
+                                <td>@task.StartedOn?.ToString("yyyy-MM-dd")</td>
+                                <td>@task.FinishedOn?.ToString("yyyy-MM-dd")</td>
+                                <td></td> @* Over Due  *@
+                                @*                                         <td>
+                                            @if (task.EstimatedDate < DateTime.Now && task.Status != "Done")
+                                            {
+                                                <span class="text-danger fw-bold">متأخر</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-success">منتظم</span>
+                                            }
+                                        </td> *@
+                                <td>
+                                    <a class="btn btn-sm btn-danger" asp-controller="Tasks" asp-action="DeleteT" asp-route-id="@task.Id">Delete</a>
+                                    <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editTaskModal"
+                                            data-id="@task.Id">
+                                        Edit
+                                    </button>
+                                </td>
                             </tr>
                         }
                     }

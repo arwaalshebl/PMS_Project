@@ -37,8 +37,7 @@ namespace PMSProject.Models
 
         public DateTime? FinishedOn { get; set; }
 
-        //Over Due
-        //project member
+       
 
 
 
