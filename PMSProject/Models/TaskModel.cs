@@ -19,7 +19,7 @@ namespace PMSProject.Models
         public string? TaskName { get; set; }
 
         public  TaskStatus Status { get; set; }
-        public TaskStage Stage { get; set; }
+        public TaskStage? Stage { get; set; }
 
 
 

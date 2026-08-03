@@ -129,7 +129,14 @@ namespace PMSProject.Controllers
             return Json(task);
         }
 
-
+        [HttpGet]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var users = await _context.Users 
+                .Select(u => new { id = u.Id, userName = u.UserName })
+                .ToListAsync();
+            return Json(users);
+        }
 
 
     }
