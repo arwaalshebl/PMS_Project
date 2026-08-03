@@ -82,6 +82,11 @@ public class TasksController : Controller
         {
             return Json(new { success = false, message = "You must assign this task to either a project or a developer." });
         }
+        else if(task.EstimatedDate.HasValue && task.EstimatedDate.Value.Date < DateTime.Today.Date)
+        {
+            return Json(new { success = false, message = "Start date cannot be in the past" });
+
+        }
 
         if (ModelState.IsValid)
         {

@@ -175,7 +175,6 @@
                             <tr>
                                 <th>Task Title</th>
                                 <th>Developer</th>
-                                <th>Sprint</th>
                                 <th>Status</th>
                                 <th>Estimated Date</th>
                                 <th>Started On</th>
@@ -207,16 +206,7 @@
                                                 <span class="text-muted">Not Assigned</span>
                                             }
                                         </td>
-                                        <td>
-                                            @if (task.Sprint != null)
-                                            {
-                                                <span>@task.Sprint.SprintName</span>
-                                            }
-                                            else
-                                            {
-                                                <span>No Sprint </span>
-                                            }
-                                        </td>
+
                                         <td>
                                             <select class="form-select form-select-sm status-dropdown shadow-sm" data-task-id="@task.Id">
                                                     <option value="0" selected="@(task.Status == PMSProject.Models.TaskStatus.NotStarted)">Not Started</option>
@@ -610,7 +600,7 @@
     </div>
 </div>
 
-<!-- add task model -->
+<!------------------ add task model ------------------->
 <div class="modal fade" id="addTaskModal" tabindex="-1" aria-labelledby="addTaskModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -792,7 +782,7 @@
         });
                 return;
             }
-            //fillter dev dpenaends on selected project
+            //fillter users dpenends on selected project
             $.ajax({
                 url: '/Tasks/GetDevelopersByProject',
                 type: 'GET',
@@ -819,7 +809,7 @@
             $('#modalUserId').val('');
             $('#createTaskError').addClass('d-none').text('');
         });
-        // 4. إرسال الفورم بالـ AJAX ومنع الصفحة البيضاء، وإظهار رسائل الخطأ (مثل الـ Stage أو النقص)
+        // 4. إرسال الفورم بالـ AJAX ومنع الصفحة البيضاء، وإظهار رسائل الخطأ (مثل الـ أو النقص)
         $(document).on('submit', '#addTaskForm', function (e) {
             e.preventDefault();
             var form = $(this);
