@@ -75,6 +75,13 @@ public class TasksController : Controller
         ModelState.Remove("projects");
         ModelState.Remove("AssignedUser");
 
+        // 🚀 Custom Validation: Ensure at least one option is selected
+        //worked in view i want it in bootstrap model
+        if (!projectId.HasValue && string.IsNullOrEmpty(selectedUserId))
+        {
+            return Json(new { success = false, message = "You must assign this task to either a project or a developer." });
+        }
+
         if (ModelState.IsValid)
         {
             if(projectId.HasValue)
@@ -103,7 +110,7 @@ public class TasksController : Controller
 
             _context.Add(task);
             await _context.SaveChangesAsync();
-            return RedirectToAction("Dashboard", "Home");
+            return Json(new { success = true });
         }
         else
         {
@@ -173,13 +180,14 @@ public class TasksController : Controller
     }
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EditT(int id, TaskModel task, string? selectedUserId)
+    public async Task<IActionResult> EditT(int id ,TaskModel task, string? selectedUserId)
     {
         if (id != task.Id) return NotFound();
         ModelState.Remove("AssignedUser");
         ModelState.Remove("UserId");
         if (ModelState.IsValid)
         {
+
             task.UserId = selectedUserId;
             task.AssignedUser = !string.IsNullOrEmpty(selectedUserId) ? await _userManager.FindByIdAsync(selectedUserId) : null;
             _context.Update(task);
