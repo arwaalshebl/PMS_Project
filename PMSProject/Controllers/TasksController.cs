@@ -55,9 +55,10 @@ public class TasksController : Controller
         // SHOW ALL PROJECT
        // ViewBag.ProjectsList = _context.Projects.ToList();
         ViewBag.ProjectsList = new SelectList(_context.Projects.ToList(),"Id","ProjectName");
-        //show the developers only
-        var developers = await _userManager.GetUsersInRoleAsync("Developer");
-        ViewBag.Users =new SelectList(developers,"Id","UserName");
+ 
+
+        var users = await _userManager.Users.ToListAsync();
+        ViewBag.Users = new SelectList(users, "Id", "UserName");
 
         ViewBag.SprintsList = new SelectList(_context.Sprints.ToList(), "Id", "SprintName");
 
@@ -120,8 +121,10 @@ public class TasksController : Controller
                 System.Diagnostics.Debug.WriteLine("---------MODEL STATE ERROR:-------   "+error);
             }
         }
-        
-        ViewBag.Users = new SelectList(await _userManager.GetUsersInRoleAsync("Developer"), "Id", "UserName");
+
+        var users = await _userManager.Users.ToListAsync();
+        ViewBag.Users = new SelectList(users, "Id", "UserName");
+
         ViewBag.ProjectsList = new SelectList(_context.Projects.ToList(), "Id", "ProjectName");
         ViewBag.SprintsList = new SelectList(_context.Sprints.ToList(), "Id", "SprintName");
 
@@ -144,17 +147,6 @@ public class TasksController : Controller
     }
 
 
-
-    //[HttpGet]
-    //public IActionResult GetProjectsByDeveloper(string userId)
-    //{
-    //    //project list for the selected devolper
-    //    var projects = _context.Projects
-    //        .Where(p => p.AssignedUser.Any(u => u.Id == userId))
-    //        .Select(p => new { p.Id, p.ProjectName })
-    //        .ToList();
-    //    return Json(projects);
-    //}
 
     [HttpGet]
     public IActionResult GetDevelopersByProject(int projectId)
@@ -194,7 +186,8 @@ public class TasksController : Controller
             await _context.SaveChangesAsync();
             return RedirectToAction("Dashboard", "Home");
         }
-        ViewBag.Users = new SelectList(await _userManager.GetUsersInRoleAsync("Developer"), "Id", "UserName", selectedUserId);
+        var users = await _userManager.Users.ToListAsync();
+        ViewBag.Users = new SelectList(users, "Id", "UserName", selectedUserId);
         return RedirectToAction("Dashboard", "Home");
 
 

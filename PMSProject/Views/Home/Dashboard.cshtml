@@ -520,7 +520,7 @@
                     <div class="mb-3">
                         <label class="control-label">Assign Developer</label>
                         <select id="ProjectUserId" name="selectedUserId" class="form-control" asp-items="@(new SelectList(ViewBag.Users, "Id", "UserName"))">
-                            <option value="">-- Select Developer --</option>
+                            <option value="">-- Select  --</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -609,153 +609,8 @@
         </div>
     </div>
 </div>
-@* <!-------------------add Task Modal reletd to project---------------------->
-<div class="modal fade" id="addTaskModel" tabindex="-1" aria-labelledby="addTaskModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form asp-controller="Tasks" asp-action="CreateT" method="post">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addTaskModalLabel">Add New Task(model)</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Task Name</label>
-                        <input type="text" name="TaskName" class="form-control" required />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Project</label>
-                        <select name="projectId" id="modalProjectId" class="form-control" asp-items="@(new SelectList(Model.Projects, "Id", "ProjectName"))" >
-                            <option value="">-- Select Project --</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Assign Developer</label>
-                        <select name="selectedUserId" id="modalUserId" class="form-control" asp-items="@(new SelectList(ViewBag.Users, "Id", "UserName"))">
-                            <option value="">-- Unassigned --</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Stage</label>
-                        <select name="stage" class="form-control" asp-items="Html.GetEnumSelectList<TaskStage>()">
-                            <option value="">-- Select Stage --</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Sprint</label>
-                        <select name="sprint" id="modalSprintId" class="form-control" asp-items="@(new SelectList(ViewBag.SprintsList, "Id", "SprintName"))">
-                            <option value="">-- Select Sprint (Backlog) --</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Status</label>
-                        <select name="Status" id="modalStatus" class="form-control">
-                            <option value="0">Not Started</option>
-                            <option value="1">On Hold</option>
-                            <option value="2">In Progress</option>
-                            <option value="3">Done</option>
-                            <option value="4">Canceled</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="EstimatedDate" class="form-label">Estimated Date</label>
-                        <input type="date" class="form-control" name="EstimatedDate" id="EstimatedDate" />
-                    </div>
-                    <div class="col-md-4">
-                        <label for="StartedOn" class="form-label">Started On</label>
-                        <input type="date" class="form-control" name="StartedOn" id="StartedOn" />
-                    </div>
-                    <div class="col-md-4">
-                        <label for="FinishedOn" class="form-label">Finished On</label>
-                        <input type="date" class="form-control" name="FinishedOn" id="FinishedOn" />
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Save Task</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-<!-------------------add Task Modal NOT reletd to project---------------------->
-<div class="modal fade" id="addTaskModel2" tabindex="-1" aria-labelledby="addTaskModal2Label" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form id="addTaskModel2" asp-controller="Tasks" asp-action="CreateT" method="post">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addTaskModal2Label">Add New Task(model)</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="createTaskError" class="alert alert-danger d-none" role="alert"></div>
-                    <div class="mb-3">
-                        <label class="form-label">Task Name</label>
-                        <input type="text" name="TaskName" class="form-control" required />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Project</label>
-                        <select name="projectId" id="modalProjectId" class="form-control" asp-items="@(new SelectList(Model.Projects, "Id", "ProjectName"))" >
-                            <option value="">-- Select Project --</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <!--here dropdawn list -->
-                        <label class="form-label">Assign Developer</label>
-                        <select name="selectedUserId" id="modalUserId2" class="form-control" asp-items="@(new SelectList(ViewBag.Users, "Id", "UserName"))" >
-                            <option value="">-- Unassigned --</option>
-                        </select>
-                    </div>
-@*                    <div class="mb-3">
-                       <!--here when i want to show name without dropdown-->
-                        <label class="form-label">Assign Developer</label>
-                        <input type="hidden" name="selectedUserId" id="modalUserId2" />
-                        <input type="text" id="modalUserId2display" class="form-control" readonly placeholder="-- Unassigned --" />
-                    </div> 
-                    <div class="mb-3">
-                        <label class="form-label">Stage</label>
-                        <select name="stage"  class="form-control" asp-items="Html.GetEnumSelectList<TaskStage>()" >
-                            <option value="">-- Select Stage --</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Sprint</label>
-                        <select name="sprint" id="modalSprintId" class="form-control" asp-items="@(new SelectList(ViewBag.SprintsList, "Id", "SprintName"))">
-                            <option value="">-- Select Sprint (Backlog) --</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Status</label>
-                        <select name="Status" id="modalStatus" class="form-control">
-                            <option value="0">Not Started</option>
-                            <option value="1">On Hold</option>
-                            <option value="2">In Progress</option>
-                            <option value="3">Done</option>
-                            <option value="4">Canceled</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label for="EstimatedDate" class="form-label">Estimated Date</label>
-                        <input type="date" class="form-control" name="EstimatedDate" id="EstimatedDate" />
-                    </div>
-                    <div class="col-md-4">
-                        <label for="StartedOn" class="form-label">Started On</label>
-                        <input type="date" class="form-control" name="StartedOn" id="StartedOn" />
-                    </div>
-                    <div class="col-md-4">
-                        <label for="FinishedOn" class="form-label">FinishedOn</label>
-                        <input type="date" class="form-control" name="FinishedOn" id="FinishedOn" />
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Save Task</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div> *@
-<!--test one model to add task -->
+
+<!-- add task model -->
 <div class="modal fade" id="addTaskModal" tabindex="-1" aria-labelledby="addTaskModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -892,100 +747,7 @@
             });
         });
     </script>
-    @* <script>
-        //this for add task from project table
-        var addTaskModal = document.getElementById('addTaskModel');
-        addTaskModal.addEventListener('show.bs.modal', function (event) {
-            var button = event.relatedTarget; 
-            var projectId = button.getAttribute('data-project-id');
-            var developerId = button.getAttribute('data-developer-id');   
-            
-            var selectProject = addTaskModal.querySelector('#modalProjectId');
-            if (selectProject && projectId) {
-                selectProject.value = projectId;
-            }
-            
-            var selectUser = addTaskModal.querySelector('#modalUserId');
-            if (selectUser) {
-                selectUser.value = developerId ? developerId : "";
-            }
-        });
-    </script>
-    <script>
-         //this for add task when choose project get the assigend dev
-
-         $(document).on('change', '#modalProjectId', function () {
-            let projectId = $(this).val();
-            let $devIdInput = $('#modalUserId2');
-            //let $devNameInput = $('#modalUserId2display');
-
-            $devIdInput.val('');
-            $devNameInput.val('');
-            if (!projectId) {
-                return;
-            }
-            $.ajax({
-                url: '/Tasks/GetDevelopersByProject',
-                type: 'GET',
-                data: { projectId: projectId },
-                success: function (data) {
-                    if (data && data.length > 0) {
-                        let dev = data[0];
-                        let devId = dev.id || dev.Id;
-                        let devName = dev.userName || dev.UserName;
-                        if (devId && devName) {
-                            $devIdInput.val(devId);
-                            $devNameInput.val(devName);
-                        } else {
-
-                            $devNameInput.val('');
-                        }
-                    } else {
-
-                        $devIdInput.val('');
-                        $devNameInput.val('');
-                    }
-                },
-                error: function (xhr) {
-                    console.error("Error:", xhr.responseText);
-                }
-            });
-         });
-        // rest when close model
-         $('#addTaskModel2').on('hidden.bs.modal', function () {
-
-            $(this).find('form')[0].reset();
-
-            $('#modalUserId2').val('');
-            //$('#modalUserId2display').val('');
-         });
-         
-         //here msg error
-      $(document).on('submit', '#addTaskModel2', function (e) {
-           e.preventDefault(); // منع الانتقال تماماً
-           var form = $(this);
-           var url = form.attr('action');
-           var formData = form.serialize();
-           $.ajax({
-               url: url,
-               type: 'POST',
-               data: formData,
-               success: function (response) {
-                   if (response.success) {
-                       $('#addTaskModel2').modal('hide');
-                       location.reload();
-                   } else {
-                       // إظهار الرسالة بداخل المودل بدلاً من الانتقال لصفحة بيضاء
-                       $('#createTaskError').text(response.message).removeClass('d-none');
-                   }
-               },
-               error: function () {
-                   $('#createTaskError').text('حدث خطأ أثناء الاتصال بالخادم.').removeClass('d-none');
-               }
-           });
-        });
-
-    </script> *@
+    
     <script>
         // 1. استقبال القيم لو المودل انفتح من زر في جدول المشاريع
         //here if i add from project table
@@ -1013,6 +775,8 @@
             let projectId = $(this).val();
             let $devIdInput = $('#modalUserId');
              $devIdInput.empty();
+             $devIdInput.append('<option value="">-- Unassigned --</option>');
+
             if (!projectId) {
          //get all Users              
         $.ajax({

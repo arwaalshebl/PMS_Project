@@ -103,9 +103,10 @@ namespace PMSProject.Controllers
                 Users=members
 
             };
-            //show the developers only
-            var developers = await _userManager.GetUsersInRoleAsync("Developer");
-            ViewBag.Users = developers;
+            ////show the developers only
+            //var developers = await _userManager.GetUsersInRoleAsync("Developer");
+            //ViewBag.Users = developers;
+            ViewBag.Users = members;
             ViewBag.TaskList = allTasks;
             ViewBag.SprintsList = _context.Sprints.ToList();
 

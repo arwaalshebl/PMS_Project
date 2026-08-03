@@ -58,10 +58,10 @@ namespace PMSProject.Controllers
         {
             //show the project list to slecest the parent project
             ViewBag.ParentProjects = new SelectList(_context.Projects,"Id", "ProjectName");
-            //show the developers only
-            var developers = await _userManager.GetUsersInRoleAsync("Developer");
-            ViewBag.Users = developers;
 
+
+            var users = await _userManager.Users.ToListAsync();
+            ViewBag.Users = new SelectList(users, "Id", "UserName");
             return View();
         }
         
@@ -98,9 +98,10 @@ namespace PMSProject.Controllers
             }
             //show the project list to slecest the parent project
             ViewBag.ParentProjects = new SelectList(_context.Projects, "Id", "ProjectName", parentProjectId);
-            //show the developers only
-           // var developers = await _userManager.GetUsersInRoleAsync("Developer");
-            ViewBag.Users = await _userManager.GetUsersInRoleAsync("Developer");
+        
+
+            var users = await _userManager.Users.ToListAsync();
+            ViewBag.Users = new SelectList(users, "Id", "UserName");
             return View(project); 
         }
 
@@ -153,7 +154,8 @@ namespace PMSProject.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Dashboard", "Home");
             }
-            ViewBag.Users = new SelectList(await _userManager.GetUsersInRoleAsync("Developer"), "Id", "UserName", selectedUserId);
+            var users = await _userManager.Users.ToListAsync();
+            ViewBag.Users = new SelectList(users, "Id", "UserName", selectedUserId);
             return RedirectToAction("Dashboard", "Home");
         }
     }
