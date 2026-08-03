@@ -226,13 +226,15 @@
                                         @* <td><span class="badge bg-secondary">@task.Status</span></td> *@
                                         <td>
                                             <select class="form-select form-select-sm status-dropdown shadow-sm" data-task-id="@task.Id">
-                                                @* <!--change statuse depends on start and finish date--> *@
-                                                <option value="3" selected="@(task.FinishedOn != null)">Done</option>
-                                                <option value="2" selected="@(task.StartedOn != null)">In Progress</option>
-                                                @* <!--other statuse--> *@
+                                                <select class="form-select form-select-sm status-dropdown shadow-sm" data-task-id="@task.Id">
+
+
                                                 <option value="0" selected="@(task.Status == PMSProject.Models.TaskStatus.NotStarted)">Not Started</option>
                                                 <option value="1" selected="@(task.Status == PMSProject.Models.TaskStatus.OnHold)">On Hold</option>
+                                                    <option value="2" selected="@(task.Status == PMSProject.Models.TaskStatus.InProgress)">In Progress</option>
+                                                    <option value="3" selected="@(task.Status == PMSProject.Models.TaskStatus.Done)">Done</option>
                                                 <option value="4" selected="@(task.Status == PMSProject.Models.TaskStatus.Canceled)">Canceled</option>
+                                               
                                             </select>
                                         </td>
                                         <td>@task.EstimatedDate?.ToString("yyyy-MM-dd")</td>
