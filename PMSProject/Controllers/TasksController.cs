@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using PMSProject.Data;
 using PMSProject.Models;
 public class TasksController : Controller
@@ -210,6 +211,45 @@ public class TasksController : Controller
         task.Status = (PMSProject.Models.TaskStatus)newStatus; 
         _context.SaveChanges();
         return Json(new { success = true, message = "Status updated successfully" });
+    }
+
+    public async Task<IActionResult> DetailsUsers (string id)
+    {
+        if (string.IsNullOrEmpty(id))
+        {
+            return NotFound();
+        }
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        // project
+        var projects = await _context.Projects
+            .Where(p => p.UserId == id) 
+            .ToListAsync();
+
+        //direct tasks table
+        var directTasks = await _context.Tasks
+            .Where(t => t.UserId == id && t.ProjectId == null)
+            .ToListAsync();
+
+        //project tasks table
+        var projectTasks = await _context.Tasks
+            .Where(t => t.UserId == id && t.ProjectId != null)
+            .ToListAsync();
+     
+        var viewModel = new TaskAndProjectViewModel
+        {
+            User = user,
+            Projects = projects,
+            DirectTasks = directTasks,
+            ProjectTasks = projectTasks
+        };
+        return View(viewModel);
+
     }
 
 }

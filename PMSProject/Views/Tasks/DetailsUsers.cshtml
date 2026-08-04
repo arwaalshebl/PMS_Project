@@ -1,0 +1,301 @@
+﻿@model PMSProject.Models.TaskAndProjectViewModel
+<div class="container mt-4">
+    <!-- معلومات المطور الأساسية -->
+    <div class="card shadow mb-4">
+        <div class="card-header bg-dark text-white">
+            <h3> @Model.User.UserName</h3>
+        </div>
+        <div class="card-body">
+            <p><strong>Email:</strong> @Model.User.Email</p>
+        </div>
+    </div>
+    <!-- Projects Section -->
+    <div class="row">
+   
+        <div class="col">
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Projects</h4>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Project Name</th>
+                                <th>Parent Project</th>
+                                <th>Delvolper</th>
+
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Projects != null && Model.Projects.Any())
+                            {
+                                @foreach (var project in Model.Projects)
+                                {
+                                    <tr>
+                                        <td>@project.ProjectName</td>
+                                        <td>
+                                            @if (project.ParentProject != null)
+                                            {
+                                                <span class="text-dark">@project.ParentProject.ProjectName</span>
+
+                                            }
+                                            else
+                                            {
+                                                <span class="text-dark">Main Project</span>
+
+                                            }
+                                        </td>
+
+                                        <td>
+                                            @if (project.AssignedUser != null)
+                                            {
+                                                @string.Join(", ", project.AssignedUser)
+
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Not Assigned</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <a asp-controller="Projects" asp-action="DetailsP" asp-route-id="@project.Id" class="btn btn-sm btn-primary ">
+                                                Detalis
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="2" class="text-center text-muted">No projects available.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Direct Tasks Section-->
+    <div class="row">
+        <div class="col">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h4 class="mb-0">Direct Tasks</h4>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Task Title</th>
+                                <th>Developer</th>
+                                <th>Status</th>
+                                <th>Estimated Date</th>
+                                <th>Started On</th>
+                                <th>Finished On</th>
+                                <th>Over Due</th>
+                               
+
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            @if (Model.DirectTasks != null && Model.DirectTasks.Any())
+                            {
+                                @foreach (var task in Model.DirectTasks)
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong>@task.TaskName</strong><br />
+
+                                        </td>
+
+                                        <td>
+                                            @if (task.AssignedUser != null)
+                                            {
+                                                @task.AssignedUser.UserName
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Not Assigned</span>
+                                            }
+                                        </td>
+
+                                        <td>
+                                            <select class="form-select form-select-sm status-dropdown shadow-sm" data-task-id="@task.Id">
+                                                <option value="0" selected="@(task.Status == PMSProject.Models.TaskStatus.NotStarted)">Not Started</option>
+                                                <option value="1" selected="@(task.Status == PMSProject.Models.TaskStatus.OnHold)">On Hold</option>
+                                                <option value="2" selected="@(task.Status == PMSProject.Models.TaskStatus.InProgress)">In Progress</option>
+                                                <option value="3" selected="@(task.Status == PMSProject.Models.TaskStatus.Done)">Done</option>
+                                                <option value="4" selected="@(task.Status == PMSProject.Models.TaskStatus.Canceled)">Canceled</option>
+                                            </select>
+                                        </td>
+                                        <td>@task.EstimatedDate?.ToString("yyyy-MM-dd")</td>
+                                        <td>@task.StartedOn?.ToString("yyyy-MM-dd")</td>
+                                        <td>@task.FinishedOn?.ToString("yyyy-MM-dd")</td>
+
+                                        <td>
+                                            @* Over Due  *@
+                                            @if (task.EstimatedDate.HasValue
+                                            && task.EstimatedDate.Value.Date < DateTime.Now.Date
+                                            && task.Status != PMSProject.Models.TaskStatus.Done)
+                                            {
+                                                <span class="text-danger fw-bold">Over Due</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-secondary">On Track</span>
+                                            }
+                                        </td>
+
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="6" class="text-center text-muted">No tasks available.</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Project Tasks Section -->
+    <div class="row">
+        <div class="col">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Projects Tasks</h4>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Task Title</th>
+                                <th>Parent Project</th>
+                                <th>sub-Project</th>
+                                <th>Stage</th> 
+                                <th>Developer</th>
+                                <th>Sprint</th>
+                                <th>Status</th>
+                                <th>Estimated Date</th>
+                                <th>Started On</th>
+                                <th>Finished On</th>
+                                <th>Over Due</th>
+                           
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.ProjectTasks != null && Model.ProjectTasks.Any())
+                            {
+                                @foreach (var task in Model.ProjectTasks)
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong>@task.TaskName</strong><br />
+
+                                        </td>
+                                        @* <!-- 2. المشروع الأب (Parent Project) --> *@
+                                        <td>
+                                            @if (task.Project?.ParentProject != null)
+                                            {
+                                                <span class="text-dark">@task.Project.ParentProject.ProjectName</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-dark">@task.Project.ProjectName</span>
+                                            }
+                                        </td>
+                                        @* <!-- 3. المشروع الفرعي (Sub-Project) --> *@
+                                        <td>
+                                            @if (task.Project != null)
+                                            {
+                                                <span class="text-dark">@task.Project.ProjectName</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-dark">No Project</span>
+                                            }
+                                        </td>
+
+                                        <td>
+                                            @if (task.Stage == TaskStage.Sprint)
+                                            {
+                                                <span class="badge bg-info">Sprint</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">BackLog</span>
+
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (task.AssignedUser != null)
+                                            {
+                                                @task.AssignedUser.UserName
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Not Assigned</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (task.Sprint != null)
+                                            {
+                                                <span>@task.Sprint.SprintName</span>
+                                            }
+                                            else
+                                            {
+                                                <span>No Sprint </span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <select class="form-select form-select-sm status-dropdown shadow-sm" data-task-id="@task.Id">
+
+                                                <option value="0" selected="@(task.Status == PMSProject.Models.TaskStatus.NotStarted)">Not Started</option>
+                                                <option value="1" selected="@(task.Status == PMSProject.Models.TaskStatus.OnHold)">On Hold</option>
+                                                <option value="2" selected="@(task.Status == PMSProject.Models.TaskStatus.InProgress)">In Progress</option>
+                                                <option value="3" selected="@(task.Status == PMSProject.Models.TaskStatus.Done)">Done</option>
+                                                <option value="4" selected="@(task.Status ==  PMSProject.Models.TaskStatus.Canceled)">Canceled</option>
+                                            </select>
+                                        </td>
+
+                                        <td>@task.EstimatedDate?.ToString("yyyy-MM-dd")</td>
+                                        <td>@task.StartedOn?.ToString("yyyy-MM-dd")</td>
+                                        <td>@task.FinishedOn?.ToString("yyyy-MM-dd")</td>
+
+                                        <td>
+                                            @* Over Due  *@
+                                            @if (task.EstimatedDate.HasValue
+                                            && task.EstimatedDate.Value.Date < DateTime.Now.Date
+                                            && task.Status != PMSProject.Models.TaskStatus.Done)
+                                            {
+                                                <span class="text-danger fw-bold">Over Due</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-secondary">On Track</span>
+                                            }
+                                        </td>
+  
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="6" class="text-center text-muted">No tasks available.</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+ 

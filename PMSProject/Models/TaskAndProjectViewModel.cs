@@ -14,6 +14,9 @@ namespace PMSProject.Models
 
         public List<SprintModel> Sprints { get; set; }
 
-        public List<IdentityUser> Users { get; set; }
+        public List<IdentityUser> Users { get; set; } // list to get all users
+
+        public IdentityUser User { get; set; } // single to get one for details view
+
     }
 }
