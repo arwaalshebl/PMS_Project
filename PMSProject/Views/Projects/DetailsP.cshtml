@@ -1,21 +1,21 @@
-﻿@model PMSProject.Models.ProjectModel
+﻿@model PMSProject.Models.TaskAndProjectViewModel
 <div class="card shadow mb-4">
     <div class="card-header bg-primary text-white">
-        <h4 class="mb-0">@Model.ProjectName</h4>
+        <h4 class="mb-0">@Model.Project.ProjectName</h4>
     </div>
     <div class="card-body">
         <div class="row">
             <div class="col-md-6">
                 
-                <p><strong>Weight / Priority:</strong> <span class="badge bg-info">@Model.Weight</span></p>
+                <p><strong>Weight / Priority:</strong> <span class="badge bg-info">@Model.Project.Weight</span></p>
             </div>
             <div class="col-md-6">
-                <p><strong>Owner / Member:</strong> @(Model.AssignedUser?.UserName ?? "Unassigned")</p>
+                <p><strong>Owner / Member:</strong> @(Model.Project.AssignedUser?.UserName ?? "Unassigned")</p>
             </div>
         </div>
         <div class="mt-2">
             <strong>Notes / Details:</strong>
-            <p class="text-bg-light">@(Model.Note ?? "No notes provided.")</p>
+            <p class="text-bg-light">@(Model.Project.Note ?? "No notes provided.")</p>
         </div>
     </div>
 </div>
@@ -127,5 +127,42 @@
                 </tbody>
             </table>
         </div>
+    </div>
+</div>
+<!--Publish History-->
+<div class="card shadow mb-4">
+    <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Publish History</h5>
+        <a asp-controller="Projects" asp-action="CreatePublish" asp-route-id="@Model.Project.Id" class="btn btn-outline-dark">add release</a>
+    </div>
+    <div class="card-body">
+        @if (Model.PublishHistories != null && Model.PublishHistories.Any())
+        {
+            <table class="table table-hover table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Release Date</th>
+                        <th>Reason / Type</th>
+                        <th>Details & Changes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var release in Model.PublishHistories)
+                    {
+                        <tr>
+                            <td>@release.PublishDate.ToString("yyyy-MM-dd")</td>
+                            <td>
+                                <span class="badge bg-info text-dark">@release.Reason</span>
+                            </td>
+                            <td>@release.Details</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p class="text-muted">No releases recorded yet for this project.</p>
+        }
     </div>
 </div>

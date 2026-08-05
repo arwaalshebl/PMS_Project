@@ -137,8 +137,20 @@ namespace PMSProject.Controllers
             {
                 return NotFound();
             }
-            return View(project);
+            var history = await _context.PublishHistory
+                .Where(h=>h.ProjectId==id)
+                .OrderByDescending(h=>h.PublishDate)
+                .ToListAsync();
+            var viewModel = new TaskAndProjectViewModel
+            {
+                Project = project,
+                PublishHistories = history
+            };
+     
+            return View(viewModel);
         }
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditP(int id, ProjectModel project, string selectedUserId)
@@ -158,5 +170,67 @@ namespace PMSProject.Controllers
             ViewBag.Users = new SelectList(users, "Id", "UserName", selectedUserId);
             return RedirectToAction("Dashboard", "Home");
         }
+
+        [HttpGet]
+
+        public IActionResult CreatePublish(int id)
+
+        {
+
+            // نمرر الـ ProjectId للـ View عشان نعرف النشرة تتبع لأي مشروع
+
+            var model = new PublishHistoryModel
+
+            {
+
+                ProjectId = id,
+
+                PublishDate = DateTime.Now // أو ReleaseDate حسب اسم الخاصية عندك
+
+            };
+
+            return View(model);
+
+        }
+
+        [HttpPost]
+
+        [ValidateAntiForgeryToken]
+
+        public async Task<IActionResult> CreatePublish(PublishHistoryModel model)
+
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                foreach (var error in errors)
+                {
+                    System.Diagnostics.Debug.WriteLine("---------MODEL STATE ERROR:-------   " + error);
+                    //HERE print   The Project field is required.
+                }
+            }
+             ModelState.Remove("Project");
+
+            if (ModelState.IsValid)
+
+            {  
+                model.Id = 0;
+                var testId=model.Id;
+
+                _context.PublishHistory.Add(model);
+
+                await _context.SaveChangesAsync();
+
+
+                return RedirectToAction("DetailsP", new { id = model.ProjectId });
+
+            }
+
+            return View(model);
+
+        }
+
+
+
     }
 }

@@ -1,0 +1,25 @@
+﻿@model PMSProject.Models.PublishHistoryModel
+<div class="container mt-4" style="max-width: 600px;">
+    <h2>Add New Publish Record</h2>
+    <hr />
+    <form asp-action="CreatePublish" method="post">
+        <input type="hidden" asp-for="ProjectId" />
+        <div class="mb-3">
+            <label asp-for="PublishDate" class="form-label">Publish Date</label>
+            <input asp-for="PublishDate" class="form-control" type="date" />
+            <span asp-validation-for="PublishDate" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Reason" class="form-label">Reason / Type</label>
+            <input asp-for="Reason" class="form-control" placeholder="e.g. Bug Fix, New Feature" />
+            <span asp-validation-for="Reason" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Details" class="form-label">Details & Changes</label>
+            <textarea asp-for="Details" class="form-control" rows="4" placeholder="Write the update details here..."></textarea>
+            <span asp-validation-for="Details" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Publish</button>
+        <a asp-controller="Projects" asp-action="DetailsP" asp-route-id="@Model.ProjectId" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
