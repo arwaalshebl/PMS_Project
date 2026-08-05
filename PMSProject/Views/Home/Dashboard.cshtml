@@ -543,6 +543,8 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                    <!-- صندوق رسائل الخطأ -->
+                    <div id="editTaskError" class="alert alert-danger d-none" role="alert"></div>
                     <input type="hidden" id="TaskId" name="Id" />
                     <div class="mb-3">
                         <label class="control-label">Task Name</label>
@@ -737,6 +739,27 @@
                $('#FinishedOn').val(data.finishedOn ? data.finishedOn.substring(0, 10) : '');
             });
         });
+                $(document).ready(function() {
+           // 1. عند تعديل تاريخ البدء داخل مودل التعديل أو الإضافة
+           $(document).on('change', '#StartedOn', function() {
+               // نبحث عن أقرب قائمة سلكت للحالة في نفس المودل ونغيرها إذا كانت Not Started (قيمة 0)
+               var modal = $(this).closest('.modal');
+               var statusSelect = modal.find("select[name='Status']");
+               if ($(this).val() && statusSelect.val() == "0") {
+                   statusSelect.val("2"); // 2 تمثل In Progress
+               }
+           });
+           // 2. عند تعديل تاريخ الانتهاء
+           $(document).on('change', '#FinishedOn', function() {
+               var modal = $(this).closest('.modal');
+               var statusSelect = modal.find("select[name='Status']");
+               if ($(this).val()) {
+                   statusSelect.val("3"); // 3 تمثل Done
+               }
+           });
+        });
+
+
     </script>
     
     <script>
@@ -867,6 +890,29 @@
 
 
     </script>
-   
+   <script>
+        $(document).ready(function() {
+           // التحقق عند تغيير تاريخ الـ Estimated Date في أي مودل (إضافة أو تعديل)
+           $(document).on('change', 'input[name="EstimatedDate"]', function() {
+               var modal = $(this).closest('.modal');
+               // التأكد من وجود صندوق التنبيه الأحمر داخل المودل، وإذا لم يوجد يتم إضافته تلقائياً في الأعلى
+               var errorBox = modal.find('.alert-danger');
+               if (errorBox.length === 0) {
+                   modal.find('.modal-body').prepend('<div class="alert alert-danger d-none" role="alert"></div>');
+                   errorBox = modal.find('.alert-danger');
+               }
+               var selectedDate = new Date($(this).val());
+               var today = new Date();
+               today.setHours(0, 0, 0, 0); // تصفير الوقت للمقارنة السليمة
+               // الشرط: إذا كان التاريخ المختار أصغر من تاريخ اليوم
+               if (selectedDate < today) {
+                   errorBox.text("Estimated date cannot be in the past").removeClass("d-none"); // إظهار التنبيه الأحمر
+                   $(this).val(''); // تفريغ الحقل الخاطئ
+               } else {
+                   errorBox.addClass("d-none"); // إخفاء التنبيه إذا كان التاريخ صحيحاً
+               }
+           });
+        });
+   </script>
  
 }

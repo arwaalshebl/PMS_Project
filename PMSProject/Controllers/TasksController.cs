@@ -114,6 +114,15 @@ public class TasksController : Controller
                 }
    
             }
+            if (task.StartedOn.HasValue && task.Status == PMSProject.Models.TaskStatus.NotStarted)
+            {
+                task.Status = PMSProject.Models.TaskStatus.InProgress;
+            }
+            // إذا تم إدخال تاريخ الانتهاء، تتحول الحالة تلقائياً إلى Done
+            if (task.FinishedOn.HasValue)
+            {
+                task.Status = PMSProject.Models.TaskStatus.Done;
+            }
 
             _context.Add(task);
             await _context.SaveChangesAsync();
@@ -185,6 +194,20 @@ public class TasksController : Controller
         ModelState.Remove("UserId");
         if (ModelState.IsValid)
         {
+            if (task.EstimatedDate.HasValue && task.EstimatedDate.Value.Date < DateTime.Today.Date)
+            {
+                ModelState.AddModelError("EstimatedDate", "Estimated date cannot be in the past....");
+
+            }
+            if (task.StartedOn.HasValue && task.Status == PMSProject.Models.TaskStatus.NotStarted)
+            {
+                task.Status = PMSProject.Models.TaskStatus.InProgress;
+            }
+         
+            if (task.FinishedOn.HasValue)
+            {
+                task.Status = PMSProject.Models.TaskStatus.Done;
+            }
 
             task.UserId = selectedUserId;
             task.AssignedUser = !string.IsNullOrEmpty(selectedUserId) ? await _userManager.FindByIdAsync(selectedUserId) : null;
@@ -209,6 +232,15 @@ public class TasksController : Controller
 
 
         task.Status = (PMSProject.Models.TaskStatus)newStatus; 
+        // if status be done and finshed on is nul == put today date 
+        if(task.Status == PMSProject.Models.TaskStatus.Done&&!task.FinishedOn.HasValue)
+        {
+            task.FinishedOn = DateTime.Now;
+        }
+        if (task.Status == PMSProject.Models.TaskStatus.InProgress && !task.StartedOn.HasValue)
+        {
+            task.StartedOn = DateTime.Now;
+        }
         _context.SaveChanges();
         return Json(new { success = true, message = "Status updated successfully" });
     }

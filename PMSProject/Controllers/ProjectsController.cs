@@ -196,7 +196,6 @@ namespace PMSProject.Controllers
         [HttpPost]
 
         [ValidateAntiForgeryToken]
-
         public async Task<IActionResult> CreatePublish(PublishHistoryModel model)
 
         {
