@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -103,7 +103,7 @@ namespace PMSProject.Controllers
                 Users=members
 
             };
-         
+
             ViewBag.Users = members;
             ViewBag.TaskList = allTasks;
             ViewBag.SprintsList = _context.Sprints.ToList();
@@ -135,6 +135,52 @@ namespace PMSProject.Controllers
                 .Select(u => new { id = u.Id, userName = u.UserName })
                 .ToListAsync();
             return Json(users);
+        }
+        public async Task<IActionResult> DetailsUsers(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return NotFound();
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            // project
+            var projects = await _context.Projects
+                .Where(p => p.UserId == id)
+                .ToListAsync();
+
+            //direct tasks table
+            var directTasks = await _context.Tasks
+                .Where(t => t.UserId == id && t.ProjectId == null)
+                .ToListAsync();
+
+            //project tasks table
+            var projectTasks = await _context.Tasks
+                .Where(t => t.UserId == id && t.ProjectId != null)
+                .ToListAsync();
+
+            int complatedTasksCount = _context.Tasks
+                .Where(t=>t.UserId == id 
+                && t.Status == PMSProject.Models.TaskStatus.Done 
+                & t.Project != null)
+                .Count();
+
+            ViewBag.CompletedCount = complatedTasksCount;
+
+            var viewModel = new TaskAndProjectViewModel
+            {
+                User = user,
+                Projects = projects,
+                DirectTasks = directTasks,
+                ProjectTasks = projectTasks
+            };
+            return View(viewModel);
+
         }
 
 
