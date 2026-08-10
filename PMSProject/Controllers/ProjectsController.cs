@@ -229,6 +229,35 @@ namespace PMSProject.Controllers
 
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadAttachment(int id, IFormFile file)
+        {
+            var project = await _context.Projects.FindAsync(id);
+            if (project == null) return NotFound();
+            if (file != null && file.Length > 0)
+            {
+                // تحديد مسار حفظ الملف في مجلد wwwroot/uploads
+                string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+                // إنشاء اسم فريد للملف لتجنب تكرار الأسماء
+                string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(file.FileName);
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(fileStream);
+                }
+                // حفظ مسار الملف في قاعدة البيانات
+                project.AttachmentPath = "/uploads/" + uniqueFileName;
+                _context.Update(project);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction("DetailsP", new { id = id });
+        }
+
 
 
     }

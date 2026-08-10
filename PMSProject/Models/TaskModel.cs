@@ -21,6 +21,7 @@ namespace PMSProject.Models
         public  TaskStatus Status { get; set; }
         public TaskStage? Stage { get; set; }
 
+        public string? Note { get; set; }
 
 
         ////Relations

@@ -27,7 +27,7 @@ namespace PMSProject.Models
 
         public string? Note { get; set; }
 
-
+        public string? AttachmentPath { get; set; }
 
 
         // Relations
