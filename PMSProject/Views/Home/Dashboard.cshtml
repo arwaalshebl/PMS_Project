@@ -239,6 +239,9 @@
                                             <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editTaskModal" data-id="@task.Id">
                                                 Edit
                                             </button>
+                                            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#taskDetailsModal" data-id="@task.Id">
+                                                <i class="bi bi-eye"></i> 
+                                            </button>
                                         </td>
                                     </tr>
                                 }
@@ -385,6 +388,9 @@
                                             <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editTaskModal"
                                             data-id="@task.Id">
                                                 Edit
+                                            </button>
+                                                                 <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#taskDetailsModal" data-id="@task.Id">
+                                                <i class="bi bi-eye"></i> 
                                             </button>
                                         </td>
                                     </tr>
@@ -570,6 +576,10 @@
                         </select>
                     </div>
                     <div class="mb-3">
+                        <label name="Notes" class="form-label">Task Notes / Details</label>
+                        <textarea id="Notes" name="Notes" class="form-control" rows="3" placeholder="Add any notes or details about this task..."></textarea>
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label">Status</label>
                         <select name="Status" id="modalStatus" class="form-control">
                             <option value="0">Not Started</option>
@@ -644,6 +654,10 @@
                         </select>
                     </div>
                     <div class="mb-3">
+                        <label name="Notes" class="form-label">Task Notes / Details</label>
+                        <textarea name="Notes" class="form-control" rows="3" placeholder="Add any notes or details about this task..."></textarea>
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label">Status</label>
                         <select name="Status" id="modalStatus" class="form-control">
                             <option value="0">Not Started</option>
@@ -671,6 +685,62 @@
                     <button type="submit" class="btn btn-primary">Save Task</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<!------------------- Task Details Modal (Read-Only) ------------------->
+<div class="modal fade" id="taskDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title">Task Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- كل الحقول هنا تحتوي على readonly لتكون للاطلاع فقط -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Task Name</label>
+                    <input type="text" id="detailsTaskName" class="form-control" readonly />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Project</label>
+                    <input type="text" id="detailsProjectName" class="form-control" readonly />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Assigned Developer</label>
+                    <input type="text" id="detailsDeveloper" class="form-control" readonly />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Sprint</label>
+                    <input type="text" id="detailsSprint" class="form-control" readonly />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Status</label>
+                    <input type="text" id="detailsStatus" class="form-control" readonly />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Task Notes</label>
+                    <textarea id="detailsNote" class="form-control" rows="3" readonly></textarea>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Estimated Date</label>
+                        <input type="text" id="detailsEstimatedDate" class="form-control" readonly />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Started On</label>
+                        <input type="text" id="detailsStartedOn" class="form-control" readonly />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Finished On</label>
+                        <input type="text" id="detailsFinishedOn" class="form-control" readonly />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
         </div>
     </div>
 </div>
@@ -732,7 +802,7 @@
                 $('#TaskUserId').val(data.userId);
                 $('#modalProjectId').val(data.projectId);
                 $('#modalStatus').val(data.status);
-
+                $('#Notes').val(data.note)
                
                 $('#EstimatedDate').val(data.estimatedDate ? data.estimatedDate.substring(0, 10) : '');
                 $('#StartedOn').val(data.startedOn ? data.startedOn.substring(0, 10) : '');
@@ -760,8 +830,9 @@
         });
 
 
+
     </script>
-    
+ 
     <script>
         // 1. استقبال القيم لو المودل انفتح من زر في جدول المشاريع
         //here if i add from project table
@@ -859,6 +930,37 @@
             });
         });
     </script>
+    <script>
+                $('#taskDetailsModal').on('show.bs.modal', function (event) {
+           var button = $(event.relatedTarget);
+           var id = button.data('id');
+           $.get('/Home/GetTask/' + id, function (data) {
+               // تعبئة الحقول بالنصوص القادمة من السيرفر
+               $('#detailsTaskName').val(data.taskName);
+               $('#detailsProjectName').val(data.projectName || 'N/A'); // لو اسم المشروع متوفر بالـ JSON
+               $('#detailsDeveloper').val(data.userName || 'Not Assigned'); // لو اسم المطور متوفر
+               $('#detailsSprint').val(data.sprintName || 'No Sprint'); // لو اسم السبرنت متوفر
+
+        // تحويل رقم الـ Status القادم من الداتا إلى نصه المقابل
+        let statusMap = {
+           0: "Not Started",
+           1: "On Hold",
+           2: "In Progress",
+           3: "Done",
+           4: "Canceled"
+        };
+        // فحص الرقم المعروض وضبط النص المناسب
+        let statusText = statusMap[data.status] !== undefined ? statusMap[data.status] : data.status;
+        $('#detailsStatus').val(statusText);
+
+
+               $('#detailsNote').val(data.note);
+               $('#detailsEstimatedDate').val(data.estimatedDate ? data.estimatedDate.substring(0, 10) : '');
+               $('#detailsStartedOn').val(data.startedOn ? data.startedOn.substring(0, 10) : '');
+               $('#detailsFinishedOn').val(data.finishedOn ? data.finishedOn.substring(0, 10) : '');
+           });
+        });
+        </script>
     <script>
         $(document).on('change', '.status-dropdown', function () {
            let $dropdown = $(this);
