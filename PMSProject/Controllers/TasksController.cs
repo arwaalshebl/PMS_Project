@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using PMSProject.Data;
 using PMSProject.Models;
+using System.Security.Claims;
 public class TasksController : Controller
 {
     private readonly AppDbContext _context;
@@ -77,18 +78,28 @@ public class TasksController : Controller
         ModelState.Remove("projects");
         ModelState.Remove("AssignedUser");
 
-        // 🚀 Custom Validation: Ensure at least one option is selected
-        //worked in view i want it in bootstrap model
-        if (!projectId.HasValue && string.IsNullOrEmpty(selectedUserId))
+        //  Custom Validation: Ensure at least one option is selected
+        if (!User.IsInRole("Developer"))
         {
-            return Json(new { success = false, message = "You must assign this task to either a project or a developer." });
+            if (!projectId.HasValue && string.IsNullOrEmpty(selectedUserId))
+            {
+                return Json(new { success = false, message = "You must assign this task to either a project or a developer." });
+            }
         }
-        else if(task.EstimatedDate.HasValue && task.EstimatedDate.Value.Date < DateTime.Today.Date)
+
+        //  Custom Validation: Ensure the date is not in the past
+
+         if (task.EstimatedDate.HasValue && task.EstimatedDate.Value.Date < DateTime.Today.Date)
         {
             return Json(new { success = false, message = "Start date cannot be in the past" });
 
         }
-
+        //allow dev to assign task to his self only
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (User.IsInRole("Developer"))
+        {
+            task.UserId = currentUserId;
+        }
         if (ModelState.IsValid)
         {
             if(projectId.HasValue)
