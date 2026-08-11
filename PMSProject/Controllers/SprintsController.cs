@@ -32,9 +32,34 @@ namespace PMSProject.Controllers
             {
                 _context.Sprints.Add(sprint);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("IndexS"); 
+                return RedirectToAction("Dashboard", "Home");
             }
             return View(sprint);
+        }
+        [HttpPost]
+        public async Task<IActionResult> EditSprint(int id,SprintModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Sprints.Update(model);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Dashboard", "Home");
+            }
+            return RedirectToAction("Dashboard", "Home");
+        }
+        public IActionResult DeleteS(int id)
+        {
+            var sprint = _context.Sprints
+
+                .FirstOrDefault(p => p.Id == id);
+            if (sprint == null) return NotFound();
+
+
+            _context.Sprints.Remove(sprint);
+            _context.SaveChanges();
+            return RedirectToAction("Dashboard", "Home");
+
+
         }
     }
 }

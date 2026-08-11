@@ -136,6 +136,14 @@ namespace PMSProject.Controllers
                 .ToListAsync();
             return Json(users);
         }
+        [HttpGet]
+        public async Task<IActionResult> GetSprint(int id)
+        {
+            var sprint = await _context.Sprints.FindAsync(id);
+            if (sprint == null) return NotFound();
+            return Json(sprint);
+            
+        }
         public async Task<IActionResult> DetailsUsers(string id)
         {
             if (string.IsNullOrEmpty(id))
