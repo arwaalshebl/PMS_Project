@@ -54,6 +54,8 @@ namespace PMSProject.Controllers
                 .Include(pa => pa.ParentProject)
                 .Include(s=>s.SubProjects)
                 .ToListAsync();
+
+
             var sprints = await _context.Sprints.ToListAsync();
 
             var members= await _userManager.Users.ToListAsync();
@@ -103,10 +105,10 @@ namespace PMSProject.Controllers
                 Users=members
 
             };
-
+       
             ViewBag.Users = members;
-            ViewBag.TaskList = allTasks;
             ViewBag.SprintsList = _context.Sprints.ToList();
+            ViewBag.TaskList = allTasks;
 
             ViewBag.ParentProjects = allProjects.Where(pp=>pp.ParentProjectID == null).ToList();
             

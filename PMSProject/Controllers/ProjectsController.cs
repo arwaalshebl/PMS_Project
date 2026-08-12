@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Build.Utilities;
@@ -53,7 +54,7 @@ namespace PMSProject.Controllers
 
         }
 
-        
+        [Authorize (Roles ="Admin,TechLead")]
         public async Task<IActionResult> CreateP()
         {
             //show the project list to slecest the parent project
@@ -104,6 +105,8 @@ namespace PMSProject.Controllers
             ViewBag.Users = new SelectList(users, "Id", "UserName");
             return View(project); 
         }
+
+        [Authorize(Roles = "Admin,TechLead")]
 
         public IActionResult DeleteP(int id)
         {

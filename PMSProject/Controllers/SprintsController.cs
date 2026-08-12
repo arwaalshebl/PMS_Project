@@ -1,9 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PMSProject.Models;
 using PMSProject.Data;
+using PMSProject.Models;
 namespace PMSProject.Controllers
 {
+
+    [Authorize(Roles = "Admin,TechLead")]
+
     public class SprintsController : Controller
     {
         private readonly AppDbContext _context; 
