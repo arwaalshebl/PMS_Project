@@ -17,10 +17,16 @@ namespace PMSProject.Data
 
         public DbSet<PublishHistoryModel> PublishHistory { get; set; }
 
-
+        public DbSet<AuditLog> AuditLogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
+            modelBuilder.Entity<TaskModel>().HasQueryFilter(i => !i.IsDeleted);
+            modelBuilder.Entity<ProjectModel>().HasQueryFilter(i => !i.IsDeleted);
+            modelBuilder.Entity<SprintModel>().HasQueryFilter(i => !i.IsDeleted);
+            modelBuilder.Entity<PublishHistoryModel>().HasQueryFilter(i => !i.IsDeleted);
+
             base.OnModelCreating(modelBuilder);
             // Clarifying the relationship between the parent project and the sub-project.
             modelBuilder.Entity<ProjectModel>()

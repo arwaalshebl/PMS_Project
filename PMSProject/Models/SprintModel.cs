@@ -1,6 +1,6 @@
 ﻿namespace PMSProject.Models
 {
-    public class SprintModel
+    public class SprintModel : BaseEntityModel
     {
         public int Id { get; set; }
         public string SprintName { get; set; }

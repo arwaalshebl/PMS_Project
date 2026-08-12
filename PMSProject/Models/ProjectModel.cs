@@ -2,7 +2,7 @@
 
 namespace PMSProject.Models
 {
-    public class ProjectModel
+    public class ProjectModel : BaseEntityModel
     {
         public int Id { get; set; }
 

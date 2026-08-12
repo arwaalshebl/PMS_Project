@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PMSProject.Models
 {
-    public class PublishHistoryModel
+    public class PublishHistoryModel : BaseEntityModel
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

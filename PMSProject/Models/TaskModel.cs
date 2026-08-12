@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PMSProject.Models
 {
-    public class TaskModel
+    public class TaskModel : BaseEntityModel
     {
         public int Id { get; set; }
 

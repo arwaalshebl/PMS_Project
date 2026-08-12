@@ -1,15 +1,24 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PMSProject.Data;
+using PMSProject.Data.Interceptors;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-//Database
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+//interceptor
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<AuditInterceptor>();
+
+//Database and interceptor 
+builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
+{
+    var interceptor = serviceProvider.GetRequiredService<AuditInterceptor>();
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+           .AddInterceptors(interceptor);
+});
 //idintity
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddRoles<IdentityRole>()
