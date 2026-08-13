@@ -27,8 +27,8 @@ namespace PMSProject.Data.Interceptors
         private void UpdateAuditableEntities(DbContext? context)
         {
             if (context == null) return;
-            // جلب الـ UserId الحالي
-            var userId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+            // جلب الـ UserId الحالي للعملية
+            var currentUserId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
             // تتبع التغييرات
             context.ChangeTracker.DetectChanges();
             var auditLogs = new List<AuditLog>();
@@ -40,7 +40,7 @@ namespace PMSProject.Data.Interceptors
                 var auditLog = new AuditLog
                 {
                     TableName = entry.Metadata.GetTableName() ?? entry.Entity.GetType().Name,
-                    UserId = userId,
+                    UserId = currentUserId,
                     Timestamp = DateTime.Now,
                     RecordTitle = GetRecordTitle(entry)
                 };
@@ -70,14 +70,14 @@ namespace PMSProject.Data.Interceptors
                     switch (entry.State)
                     {
                         case EntityState.Added:
-                            newValues[propertyName] = property.CurrentValue;
+                            newValues[propertyName] = FormatValue(property.CurrentValue, propertyName, context);
                             break;
                         case EntityState.Modified:
                             // نسجل فقط الحقول التي تغيرت فعلياً
                             if (property.IsModified)
                             {
-                                oldValues[propertyName] = property.OriginalValue;
-                                newValues[propertyName] = property.CurrentValue;
+                                oldValues[propertyName] = FormatValue(property.OriginalValue, propertyName, context);
+                                newValues[propertyName] = FormatValue(property.CurrentValue, propertyName, context);
                             }
                             break;
                     }
@@ -91,6 +91,39 @@ namespace PMSProject.Data.Interceptors
             {
                 context.Set<AuditLog>().AddRange(auditLogs);
             }
+        }
+        // دالة لتحويل الـ Enums والـ User IDs إلى نصوص واضحة
+        private object? FormatValue(object? value, string propertyName, DbContext context)
+        {
+            if (value == null) return null;
+            // 1. إذا كانت القيمة Enum، نحولها إلى اسمها النصي (مثل Done)
+            if (value.GetType().IsEnum)
+            {
+                return value.ToString();
+            }
+            // 2. إذا كان الحقل يمثل معرف مستخدم (مثل UserId أو AssignedUserId)، نجلب اسم المستخدم بدل الـ ID
+            if ((propertyName.Equals("UserId", StringComparison.OrdinalIgnoreCase) || propertyName.EndsWith("UserId", StringComparison.OrdinalIgnoreCase)) && value is string userId && !string.IsNullOrEmpty(userId))
+            {
+                try
+                {
+                    // البحث عن المستخدم في جدول الـ Users مباشرة عبر الـ Context
+                    dynamic db = context;
+                    var user = db.Users.Find(userId);
+                    if (user != null)
+                    {
+                        string userName = user.UserName;
+                        if (!string.IsNullOrEmpty(userName))
+                        {
+                            return userName; // إرجاع اسم المستخدم بدلاً من الـ ID
+                        }
+                    }
+                }
+                catch
+                {
+                    // في حال حدث أي استثناء، يتم العودة للقيم الاصلية
+                }
+            }
+            return value;
         }
         // دالة مساعدة لاستخراج اسم السجل (عنوان المهمة، اسم المشروع، إلخ)
         private string GetRecordTitle(EntityEntry entry)

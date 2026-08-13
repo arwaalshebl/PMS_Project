@@ -4,6 +4,9 @@
 }
 <div class="container mt-4">
     <h2 class="mb-4">Dashboard</h2>
+    <a asp-controller="AuditLogs" asp-action="IndexA" class="btn btn-warning rounded-pill px-4">
+        Audit Logs
+    </a>
     <!-- TEAM MEMBERS SECTION (NEUTRAL GREY THEME) -->
     @if (User.IsInRole("Admin") || User.IsInRole("TechLead"))
     {

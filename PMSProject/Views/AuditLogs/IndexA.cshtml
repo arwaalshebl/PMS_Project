@@ -1,0 +1,109 @@
+﻿@model IEnumerable<PMSProject.Models.AuditLog>
+@{
+    ViewData["Title"] = "System Audit Logs";
+}
+<div class="container mt-4">
+    <h2 class="mb-3">System Audit Logs</h2>
+    <hr />
+    <!-- فورم الفلترة (بحث حسب المستخدم والتاريخ) -->
+    <form method="get" asp-action="IndexA" class="row g-3 mb-4 p-3 bg-light rounded shadow-sm">
+        <div class="col-md-3">
+            <label class="form-label">Filter by User</label>
+            <select name="userId" class="form-select">
+                <option value="">-- All Users --</option>
+                @if (ViewBag.Users != null)
+                {
+                    @foreach (var user in (List<Microsoft.AspNetCore.Identity.IdentityUser>)ViewBag.Users)
+                    {
+                        <option value="@user.Id">@user.UserName</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">From Date</label>
+            <input type="date" name="startDate" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">To Date</label>
+            <input type="date" name="endDate" class="form-control" />
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100 me-2">Filter</button>
+            <a asp-action="IndexA" class="btn btn-secondary w-100">Reset</a>
+        </div>
+    </form>
+    <!-- جدول عرض السجلات -->
+    <div class="table-responsive">
+        <table class="table table-striped table-hover border">
+            <thead class="table-dark">
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Table</th>
+                    <th>Action</th>
+                    <th>Record Title</th>
+                    <th>User Name</th>
+                    <th>Old Values</th>
+                    <th>New Values</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var log in Model)
+                    {
+                        <tr>
+                            <td>@log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                            <td><span class="badge bg-secondary">@log.TableName</span></td>
+                            <td>
+                                @if (log.Action == "Added")
+                                {
+                                    <span class="badge bg-success">Added</span>
+                                }
+                                else if (log.Action == "Modified")
+                                {
+                                    <span class="badge bg-warning text-dark">Modified</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">@log.Action</span>
+                                }
+                            </td>
+                            <td><strong>@log.RecordTitle</strong></td>
+                            <td>
+                                @{
+                                    string userName = "System / Unknown";
+                                    if (ViewBag.UserNames is Dictionary<string, string> userDict && !string.IsNullOrEmpty(log.UserId) && userDict.ContainsKey(log.UserId))
+                                    {
+                                        userName = userDict[log.UserId];
+                                    }
+                                    else if (!string.IsNullOrEmpty(log.UserId))
+                                    {
+                                        userName = log.UserId; 
+                                    }
+                                }
+                                <span class="fw-bold text-primary">@userName</span>
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(log.OldValues))
+                                    {
+                                        <pre class="small text-danger">@log.OldValues</pre>
+                                    }
+                                </td>
+                            <td>@if(!string.IsNullOrEmpty(log.NewValues))
+                                    {
+                                        <pre class="small text-danger">@log.NewValues</pre>
+                                    }</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">No audit logs found.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
