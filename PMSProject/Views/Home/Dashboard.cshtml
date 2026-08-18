@@ -4,12 +4,13 @@
 }
 <div class="container mt-4">
     <h2 class="mb-4">Dashboard</h2>
-    <a asp-controller="AuditLogs" asp-action="IndexA" class="btn btn-warning rounded-pill px-4">
-        Audit Logs
-    </a>
+
     <!-- TEAM MEMBERS SECTION (NEUTRAL GREY THEME) -->
     @if (User.IsInRole("Admin") || User.IsInRole("TechLead"))
     {
+        <a asp-controller="AuditLogs" asp-action="IndexA" class="btn btn-warning rounded-pill px-4">
+            Audit Logs
+        </a>
         <div class="row">
             <div class="col-12 mt-4 mb-4">
                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -250,7 +251,11 @@
                                             }
                                         </td>
                                         <td>
-                                            <a class="btn btn-sm btn-danger" asp-controller="Tasks" asp-action="DeleteT" asp-route-id="@task.Id">Delete</a>
+                                            @if (User.IsInRole("Admin") || User.IsInRole("TechLead"))
+                                            {
+                                                <a class="btn btn-sm btn-danger" asp-controller="Tasks" asp-action="DeleteT" asp-route-id="@task.Id">Delete</a>
+
+                                            }
                                             <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editTaskModal" data-id="@task.Id">
                                                 Edit
                                             </button>
@@ -399,7 +404,11 @@
                                             }
                                         </td>
                                         <td>
-                                            <a class="btn btn-sm btn-danger" asp-controller="Tasks" asp-action="DeleteT" asp-route-id="@task.Id">Delete</a>
+                                            @if (User.IsInRole("Admin") || User.IsInRole("TechLead"))
+                                            {
+                                                <a class="btn btn-sm btn-danger" asp-controller="Tasks" asp-action="DeleteT" asp-route-id="@task.Id">Delete</a>
+
+                                            }
                                             <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editTaskModal"
                                             data-id="@task.Id">
                                                 Edit
@@ -589,14 +598,32 @@
                             <option value="">-- Select Project --</option>
                         </select>
                     </div>
+                   
                     <div class="mb-3">
                         <label class="control-label">Assign Developer</label>
-                        <select id="TaskUserId" name="selectedUserId" class="form-control" asp-items="@(new SelectList(ViewBag.Users, "Id", "UserName"))">
-                            <option value="">-- Select Developer --</option>
-                        </select>
+                        @if (User.IsInRole("Admin") || User.IsInRole("TechLead"))
+                        {
+                            <select id="TaskUserId" name="UserId" class="form-control" asp-items="@(new SelectList(ViewBag.Users, "Id", "UserName"))">
+                                <option value="">-- Select Developer --</option>
+                            </select>
+                        }
+                        else
+                        {
+                            <input type="text" id="userNameDisplay" class="form-control" readonly />
+                            <input type="hidden" id="TaskUserId" name="UserId" />
+                        }
                     </div>
+
                     @if (User.IsInRole("Admin") || User.IsInRole("TechLead"))
                         {
+                    
+                        <div class="mb-3">
+                            <label class="form-label">Stage</label>
+                            <select name="Stage" id="modalStage" class="form-control">
+                                <option value="0">Sprint</option>
+                                <option value="1">Backlog</option>
+                            </select>
+                        </div>
                         <div class="mb-3">
                             <label class="form-label">Sprint</label>
                             <select name="SprintId" id="modalSprintId" class="form-control" asp-items="@(new SelectList(ViewBag.SprintsList, "Id", "SprintName"))">
@@ -679,17 +706,18 @@
                         <p class="text-muted small"><i class="bi bi-info-circle">This task will assign to you</i></p>
                         }
 
-                    <div class="mb-3">
-                        <label class="form-label">Stage</label>
-                        <select name="stage" class="form-control" asp-items="Html.GetEnumSelectList<TaskStage>()">
-                            <option value="">-- Select Stage --</option>
-                        </select>
-                    </div>
+   
                     @if (User.IsInRole("Admin") || User.IsInRole("TechLead"))
                         {
                         <div class="mb-3">
+                            <label class="form-label">Stage</label>
+                            <select name="stage" class="form-control" asp-items="Html.GetEnumSelectList<PMSProject.Models.TaskStage>()">
+                                <option value="">-- Select Stage --</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
                             <label class="form-label">Sprint</label>
-                            <select name="sprint" id="modalSprintId" class="form-control" asp-items="@(new SelectList(ViewBag.SprintsList, "Id", "SprintName"))">
+                            <select name="sprintId" id="modalSprintId" class="form-control" asp-items="@(new SelectList(ViewBag.SprintsList, "Id", "SprintName"))">
                                 <option value="">-- Select Sprint (Backlog) --</option>
                             </select>
                         </div>
@@ -745,7 +773,7 @@
                     <label class="form-label fw-bold">Task Name</label>
                     <input type="text" id="detailsTaskName" class="form-control" readonly />
                 </div>
-                <div class="mb-3">
+                <div class="mb-3" id="projectContainer">
                     <label class="form-label fw-bold">Project</label>
                     <input type="text" id="detailsProjectName" class="form-control" readonly />
                 </div>
@@ -753,7 +781,11 @@
                     <label class="form-label fw-bold">Assigned Developer</label>
                     <input type="text" id="detailsDeveloper" class="form-control" readonly />
                 </div>
-                <div class="mb-3">
+                <div class="mb-3" id="stageContainer">
+                    <label class="form-label fw-bold">Stage</label>
+                    <input type="text" id="detailsStage" class="form-control" readonly />
+                </div>
+                <div class="mb-3" id="sprintContainer">
                     <label class="form-label fw-bold">Sprint</label>
                     <input type="text" id="detailsSprint" class="form-control" readonly />
                 </div>
@@ -865,40 +897,39 @@
 
             });
         });
-        $('#editTaskModal').on('show.bs.modal', function (event) {
-            var button = $(event.relatedTarget);
-            var id = button.data('id');
-            $.get('/Home/GetTask/' + id, function (data) {
-                 console.log("---data---: ",data);
-                $('#TaskId').val(data.id);
-                $('#TaskName').val(data.taskName);
-                $('#TaskStatus').val(data.status);
-                $('#TaskUserId').val(data.userId);
-                $('#modalProjectId').val(data.projectId);
-                $('#modalStatus').val(data.status);
-                $('#Notes').val(data.note)
-               
-                $('#EstimatedDate').val(data.estimatedDate ? data.estimatedDate.substring(0, 10) : '');
-                $('#StartedOn').val(data.startedOn ? data.startedOn.substring(0, 10) : '');
+                $('#editTaskModal').on('show.bs.modal', function (event) {
+           var button = $(event.relatedTarget);
+           var id = button.data('id');
+           $.get('/Home/GetTask/' + id, function (data) {
+               console.log("---data---: ", data);
+               $('#TaskId').val(data.id);
+               $('#TaskName').val(data.taskName);
+               $('#TaskUserId').val(data.userId); // تعبئة الـ ID بالمودل
+               $('#modalProjectId').val(data.projectId);
+               $('#modalStatus').val(data.status);
+               $('#modalSprintId').val(data.sprintId); // تعبئة السبرنت المختار
+               $('#modalStage').val(data.stage);       // تعبئة الستيج المحفوظ
+               $('#Notes').val(data.note);
+               // لو كان المستخدم مطور عادي (Input مخفي ومعروض)
+               $('#userNameDisplay').val(data.userName);
+               $('#EstimatedDate').val(data.estimatedDate ? data.estimatedDate.substring(0, 10) : '');
+               $('#StartedOn').val(data.startedOn ? data.startedOn.substring(0, 10) : '');
                $('#FinishedOn').val(data.finishedOn ? data.finishedOn.substring(0, 10) : '');
-            });
+           });
         });
-                $(document).ready(function() {
-           // 1. عند تعديل تاريخ البدء داخل مودل التعديل أو الإضافة
+        $(document).ready(function() {
            $(document).on('change', '#StartedOn', function() {
-               // نبحث عن أقرب قائمة سلكت للحالة في نفس المودل ونغيرها إذا كانت Not Started (قيمة 0)
                var modal = $(this).closest('.modal');
                var statusSelect = modal.find("select[name='Status']");
                if ($(this).val() && statusSelect.val() == "0") {
-                   statusSelect.val("2"); // 2 تمثل In Progress
+                   statusSelect.val("2"); // In Progress
                }
            });
-           // 2. عند تعديل تاريخ الانتهاء
            $(document).on('change', '#FinishedOn', function() {
                var modal = $(this).closest('.modal');
                var statusSelect = modal.find("select[name='Status']");
                if ($(this).val()) {
-                   statusSelect.val("3"); // 3 تمثل Done
+                   statusSelect.val("3"); // Done
                }
            });
         });
@@ -1009,13 +1040,33 @@
            var button = $(event.relatedTarget);
            var id = button.data('id');
            $.get('/Home/GetTask/' + id, function (data) {
-               // تعبئة الحقول بالنصوص القادمة من السيرفر
                $('#detailsTaskName').val(data.taskName);
-               $('#detailsProjectName').val(data.projectName || 'N/A'); // لو اسم المشروع متوفر بالـ JSON
-               $('#detailsDeveloper').val(data.userName || 'Not Assigned'); // لو اسم المطور متوفر
-               $('#detailsSprint').val(data.sprintName || 'No Sprint'); // لو اسم السبرنت متوفر
+               $('#detailsProjectName').val(data.projectName || 'N/A'); 
+               $('#detailsDeveloper').val(data.userName || 'Not Assigned');
+               $('#detailsSprint').val(data.sprintName);
+               var stageText = (data.stage === 0 )? "Sprint" : "Backlog";
 
-        // تحويل رقم الـ Status القادم من الداتا إلى نصه المقابل
+               $('#detailsStage').val(stageText);
+
+               
+
+               /// اذا كانت المهمه ماعنده مشروع (direct task) تختفي خانة السبرنت
+               if(data.projectName ==="N/A")
+               {
+                    $('#sprintContainer').hide();
+                    $('#projectContainer').hide();
+                    $('#stageContainer').hide();
+
+
+
+               }else{
+                    $('#sprintContainer').show();
+                    $('#projectContainer').show();
+                    $('#stageContainer').show();
+
+
+               }
+
         let statusMap = {
            0: "Not Started",
            1: "On Hold",
@@ -1023,7 +1074,6 @@
            3: "Done",
            4: "Canceled"
         };
-        // فحص الرقم المعروض وضبط النص المناسب
         let statusText = statusMap[data.status] !== undefined ? statusMap[data.status] : data.status;
         $('#detailsStatus').val(statusText);
 

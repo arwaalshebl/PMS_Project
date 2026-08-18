@@ -3,9 +3,9 @@
     ViewData["Title"] = "System Audit Logs";
 }
 <div class="container mt-4">
+    <a asp-controller="Home" asp-action="Dashboard" class="btn btn-secondary me-md-2">Back to Dashboard</a>
     <h2 class="mb-3">System Audit Logs</h2>
     <hr />
-    <!-- فورم الفلترة (بحث حسب المستخدم والتاريخ) -->
     <form method="get" asp-action="IndexA" class="row g-3 mb-4 p-3 bg-light rounded shadow-sm">
         <div class="col-md-3">
             <label class="form-label">Filter by User</label>

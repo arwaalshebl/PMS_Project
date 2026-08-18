@@ -136,6 +136,7 @@ namespace PMSProject.Controllers
                     //هنا اشوف هل العلاقه هذي تجيب لي المهام حتى لو كان المطورين الي مسكوا المشروع مختلفين او اسوي له انكلود من جدول البروجكت 
                     
                 .FirstOrDefaultAsync(p => p.Id == id);
+
             if (project == null)
             {
                 return NotFound();
@@ -149,7 +150,10 @@ namespace PMSProject.Controllers
                 Project = project,
                 PublishHistories = history
             };
-     
+            ViewBag.SprintsList = await _context.Sprints.ToListAsync();
+            var users = await _userManager.Users.ToListAsync();
+            ViewBag.Users = new SelectList(users, "Id", "UserName");
+
             return View(viewModel);
         }
 
@@ -173,6 +177,7 @@ namespace PMSProject.Controllers
             ViewBag.Users = new SelectList(users, "Id", "UserName", selectedUserId);
             return RedirectToAction("Dashboard", "Home");
         }
+        [Authorize(Roles = "Admin,TechLead")]
 
         [HttpGet]
 
@@ -196,6 +201,7 @@ namespace PMSProject.Controllers
 
         }
 
+       
         [HttpPost]
 
         [ValidateAntiForgeryToken]

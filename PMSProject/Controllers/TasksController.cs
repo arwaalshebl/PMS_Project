@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -73,7 +74,7 @@ public class TasksController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> CreateT(TaskModel task, int?projectId, string? selectedUserId , int? sprint)
+    public async Task<IActionResult> CreateT(TaskModel task, int?projectId, string? selectedUserId , int? sprintId)
     {
         ModelState.Remove("projects");
         ModelState.Remove("AssignedUser");
@@ -109,6 +110,14 @@ public class TasksController : Controller
             else
             {
                 task.ProjectId = null; //task without project
+            }
+            if(sprintId.HasValue)
+            {
+                task.SprintId=sprintId.Value;
+            }
+            else
+            {
+                task.SprintId = null;
             }
 
            
@@ -156,6 +165,7 @@ public class TasksController : Controller
 
         return View(task);
     }
+    [Authorize(Roles = "Admin,TechLead")]
 
     public IActionResult DeleteT(int id)
     {

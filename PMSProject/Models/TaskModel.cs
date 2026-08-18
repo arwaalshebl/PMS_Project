@@ -59,7 +59,7 @@ namespace PMSProject.Models
 
     public enum TaskStage
     {
-        Sprint,
-        BackLog
+        Sprint = 0,
+        BackLog = 1 
     }
 }

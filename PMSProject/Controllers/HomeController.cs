@@ -124,10 +124,31 @@ namespace PMSProject.Controllers
         [HttpGet]
         public async Task<IActionResult> GetTask(int id)
         {
-            var task = await _context.Tasks.FindAsync(id);
+            var task = await _context.Tasks
+                .Include(t => t.AssignedUser)
+                .Include(t => t.Sprint)
+                .Include(t => t.Project)
+                .FirstOrDefaultAsync(t => t.Id == id);
             if (task == null) return NotFound();
-   
-            return Json(task);
+            // هنا نقوم ببناء كائن بسيط يحتوي فقط على ما نحتاجه في المودال
+            return Json(new
+            {
+                id = task.Id,
+                taskName = task.TaskName,
+                status = (int)task.Status,
+                userId = task.UserId,
+                projectId = task.ProjectId,
+                sprintId= task.SprintId,
+                stage = (int)task.Stage,
+                note = task.Note,
+                estimatedDate = task.EstimatedDate,
+                startedOn = task.StartedOn,
+                finishedOn = task.FinishedOn,
+                // هذه هي الأجزاء التي كانت تظهر N/A أو فارغة
+                projectName = task.Project != null ? task.Project.ProjectName : "N/A",
+                userName = task.AssignedUser != null ? task.AssignedUser.UserName : "Not Assigned",
+                sprintName = task.Sprint != null ? task.Sprint.SprintName : "No Sprint"
+            });
         }
 
         [HttpGet]

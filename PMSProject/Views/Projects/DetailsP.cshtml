@@ -1,4 +1,5 @@
-﻿@model PMSProject.Models.TaskAndProjectViewModel
+﻿@using System.Security.Claims
+@model PMSProject.Models.TaskAndProjectViewModel
 <div class="card shadow mb-4">
     <div class="card-header bg-primary text-white">
         <h4 class="mb-0">@Model.Project.ProjectName</h4>
@@ -22,17 +23,11 @@
             {
                 <div class="mb-3">
                     <p><strong>Attached File:</strong></p>
-              @*       <a href="@Model.Project.AttachmentPath" target="_blank" class="btn btn-outline-primary btn-sm">
+                    <a href="@Model.Project.AttachmentPath" target="_blank" class="btn btn-outline-primary btn-sm">
                         📄 View / Download File
-                    </a> *@
-                    @foreach (var fileName in Model.Project.AttachmentPath.Split(','))
-                    {
-                        var displayName = fileName.Length > 37 ? fileName.Substring(37) : fileName;
+                    </a>
 
-                        <a href="~/uploads/@fileName" target="_blank" class="btn btn-outline-primary btn-sm me-2 mb-2">
-                            📄 View / Download File (@displayName)
-                        </a>
-                    }
+
                 </div>
             }
             else
@@ -55,6 +50,9 @@
 
 
 <!--task table-->
+            <button type="button" class="btn btn-outline-success rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#addTaskModal">
+                + Add Task (model)
+            </button>
 <div class="card shadow-sm mb-4">
     <div class="card-header bg-success text-white">
         <h4 class="mb-0">Projects Tasks</h4>
@@ -171,10 +169,17 @@
                                 }
                             </td>
                             <td>
-                                <a class="btn btn-sm btn-danger" asp-controller="Tasks" asp-action="DeleteT" asp-route-id="@task.Id">Delete</a>
+                                @if (User.IsInRole("Admin") || User.IsInRole("TechLead"))
+                                {
+                                    <a class="btn btn-sm btn-danger" asp-controller="Tasks" asp-action="DeleteT" asp-route-id="@task.Id">Delete</a>
+
+                                }
                                 <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editTaskModal"
                                         data-id="@task.Id">
                                     Edit
+                                </button>
+                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#taskDetailsModal" data-id="@task.Id">
+                                    <i class="bi bi-eye"></i>
                                 </button>
                             </td>
                         </tr>
@@ -188,40 +193,404 @@
         </table>
     </div>
 </div>
-<!--Publish History-->
-<div class="card shadow mb-4">
-    <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Publish History</h5>
-        <a asp-controller="Projects" asp-action="CreatePublish" asp-route-id="@Model.Project.Id" class="btn btn-outline-dark">add release</a>
-    </div>
-    <div class="card-body">
-        @if (Model.PublishHistories != null && Model.PublishHistories.Any())
-        {
-            <table class="table table-hover table-bordered">
-                <thead class="table-light">
-                    <tr>
-                        <th>Release Date</th>
-                        <th>Reason / Type</th>
-                        <th>Details & Changes</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var release in Model.PublishHistories)
-                    {
+@if (User.IsInRole("Admin") || User.IsInRole("TechLead"))
+{
+   @*  <!--Publish History--> *@
+    <div class="card shadow mb-4">
+        <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Publish History</h5>
+            <a asp-controller="Projects" asp-action="CreatePublish" asp-route-id="@Model.Project.Id" class="btn btn-outline-dark">add release</a>
+        </div>
+        <div class="card-body">
+            @if (Model.PublishHistories != null && Model.PublishHistories.Any())
+            {
+                <table class="table table-hover table-bordered">
+                    <thead class="table-light">
                         <tr>
-                            <td>@release.PublishDate.ToString("yyyy-MM-dd")</td>
-                            <td>
-                                <span class="badge bg-info text-dark">@release.Reason</span>
-                            </td>
-                            <td>@release.Details</td>
+                            <th>Release Date</th>
+                            <th>Reason / Type</th>
+                            <th>Details & Changes</th>
                         </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var release in Model.PublishHistories)
+                        {
+                            <tr>
+                                <td>@release.PublishDate.ToString("yyyy-MM-dd")</td>
+                                <td>
+                                    <span class="badge bg-info text-dark">@release.Reason</span>
+                                </td>
+                                <td>@release.Details</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p class="text-muted">No releases recorded yet for this project.</p>
+            }
+        </div>
+    </div>
+}
+
+<!------------------- edit TaskModal ---------------------->
+<div class="modal fade" id="editTaskModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-controller="Tasks" asp-action="EditT" method="post">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title">Edit Task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="TaskId" name="Id" />
+                    <input type="hidden" id="modalProjectId" name="ProjectId" value="@Model.Project.Id" />
+                    <div class="mb-3">
+                        <label class="control-label">Task Name</label>
+                        <input type="text" id="TaskName" name="TaskName" class="form-control" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Project</label>
+                        <input type="text" class="form-control" value="@Model.Project.ProjectName" readonly />
+                    </div>
+                    <div class="mb-3">
+                        <label class="control-label">Assign Developer</label>
+                        <input type="hidden" id="TaskUserId" name="selectedUserId" value="@Model.Project.AssignedUser" />
+                        <input type="text" class="form-control" value="@Model.Project.AssignedUser?.UserName" readonly />
+
+                    </div>
+
+                    @if (User.IsInRole("Admin") || User.IsInRole("TechLead"))
+
+                    {
+                        <div class="mb-3">
+                            <label class="form-label">Stage</label>
+                            <select name="stage" id="modalStage" class="form-control" asp-items="Html.GetEnumSelectList<PMSProject.Models.TaskStage>()">
+                                <option value="">-- Select Stage --</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Sprint</label>
+                            <select name="SprintId" id="modalSprintId" class="form-control" asp-items="@(ViewBag.SprintsList != null ? new SelectList(ViewBag.SprintsList, "Id", "SprintName") : new SelectList(new List<object>()))">
+                                <option value="">-- Select Sprint (Backlog) --</option>
+                            </select>
+                        </div>
+
                     }
-                </tbody>
-            </table>
-        }
-        else
-        {
-            <p class="text-muted">No releases recorded yet for this project.</p>
-        }
+                    <div class="mb-3">
+                        <label class="form-label">Task Notes / Details</label>
+                        <textarea id="Notes" name="Notes" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select name="Status" id="modalStatus" class="form-control">
+                            <option value="0">Not Started</option>
+                            <option value="1">On Hold</option>
+                            <option value="2">In Progress</option>
+                            <option value="3">Done</option>
+                            <option value="4">Canceled</option>
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label for="EstimatedDate" class="form-label">Estimated</label>
+                            <input type="date" class="form-control" name="EstimatedDate" id="EstimatedDate" />
+                        </div>
+                        <div class="col-md-4">
+                            <label for="StartedOn" class="form-label">Started</label>
+                            <input type="date" class="form-control" name="StartedOn" id="StartedOn" />
+                        </div>
+                        <div class="col-md-4">
+                            <label for="FinishedOn" class="form-label">Finished</label>
+                            <input type="date" class="form-control" name="FinishedOn" id="FinishedOn" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
+<!------------------- Add Task Modal (Project Details) ------------------->
+<div class="modal fade" id="addTaskModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-controller="Tasks" asp-action="CreateT" id="addTaskForm" method="post">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">Add New Task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="createTaskError" class="alert alert-danger d-none" role="alert"></div>
+                    <input type="hidden" id="modalProjectId" name="projectId" value="@Model.Project.Id" />
+                    <div class="mb-3">
+                        <label class="form-label">Task Name</label>
+                        <input type="text" name="TaskName" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Project</label>
+                        <input type="text" class="form-control" value="@Model.Project.ProjectName" readonly />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Assign Developer</label>
+                        @if (User.IsInRole("Admin") || User.IsInRole("TechLead"))
+                        {
+                            <select name="selectedUserId" id="modalUserId" class="form-control" asp-items="ViewBag.Users">
+                                <option value="">-- Unassigned --</option>
+                            </select>
+                        }
+                        else
+                        {
+                            <input type="hidden" name="selectedUserId" value="@User.FindFirstValue(ClaimTypes.NameIdentifier)" />
+                            <input type="text" class="form-control" value="@User.Identity.Name" readonly />
+                        }
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Stage</label>
+                        <select name="Stage" class="form-control" asp-items="Html.GetEnumSelectList<PMSProject.Models.TaskStage>()">
+                            <option value="">-- Select Stage --</option>
+                        </select>
+                    </div>
+                    @if (User.IsInRole("Admin") || User.IsInRole("TechLead"))
+                    {
+                        <div class="mb-3">
+                            <label class="form-label">Sprint</label>
+                            <select name="SprintId" class="form-control" asp-items="@(ViewBag.SprintsList != null ? new SelectList(ViewBag.SprintsList, "Id", "SprintName") : new SelectList(new List<object>()))">
+                                <option value="">-- Select Sprint (Backlog) --</option>
+                            </select>
+                        </div>
+                    }
+                    <div class="mb-3">
+                        <label class="form-label">Task Notes / Details</label>
+                        <textarea name="Notes" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select name="Status" class="form-control">
+                            <option value="0">Not Started</option>
+                            <option value="1">On Hold</option>
+                            <option value="2">In Progress</option>
+                            <option value="3">Done</option>
+                            <option value="4">Canceled</option>
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="form-label">Estimated</label>
+                            <input type="date" class="form-control" name="EstimatedDate" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Started</label>
+                            <input type="date" class="form-control" name="StartedOn" id="createStartedOn" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Finished</label>
+                            <input type="date" class="form-control" name="FinishedOn" id="createFinishedOn" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Save Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!------------------- Task Details Modal (Read-Only) ------------------->
+<div class="modal fade" id="taskDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Task Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Task Name</label>
+                    <input type="text" id="detailsTaskName" class="form-control" readonly />
+                </div>
+            
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Project</label>
+                        <input type="text" id="detailsProjectName" class="form-control" readonly />
+                    </div>
+
+              
+                <div class="row">
+                    <div class="mb-3" id="stageContainer">
+                        <label class="form-label fw-bold">Stage</label>
+                        <input type="text" id="detailsStage" class="form-control" readonly />
+                    </div>
+                    <div class="mb-3" id="sprintContainer">
+                        <label class="form-label fw-bold">Sprint</label>
+                        <input type="text" id="detailsSprint" class="form-control" readonly />
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Assigned Developer</label>
+                    <input type="text" id="detailsDeveloper" class="form-control" readonly />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Status</label>
+                    <input type="text" id="detailsStatus" class="form-control" readonly />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Task Notes</label>
+                    <textarea id="detailsNote" class="form-control" rows="3" readonly></textarea>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold small">Estimated</label>
+                        <input type="text" id="detailsEstimatedDate" class="form-control" readonly />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold small">Started</label>
+                        <input type="text" id="detailsStartedOn" class="form-control" readonly />
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold small">Finished</label>
+                        <input type="text" id="detailsFinishedOn" class="form-control" readonly />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+       $(document).ready(function () {
+           // مودال التعديل
+           $('#editTaskModal').on('show.bs.modal', function (event) {
+               var button = $(event.relatedTarget);
+               var id = button.data('id');
+               $.get('/Home/GetTask/' + id, function (data) {
+                   $('#TaskId').val(data.id);
+                   $('#TaskName').val(data.taskName);
+                   $('#TaskUserId').val(data.userId);
+                   $('#modalProjectId').val(data.projectId);
+                   $('#modalStatus').val(data.status);
+                   $('#modalStage').val(data.stage);
+                    $('#modalSprintId').val(data.sprintId);
+
+
+                   $('#Notes').val(data.note);
+                   $('#EstimatedDate').val(data.estimatedDate ? data.estimatedDate.substring(0, 10) : '');
+                   $('#StartedOn').val(data.startedOn ? data.startedOn.substring(0, 10) : '');
+                   $('#FinishedOn').val(data.finishedOn ? data.finishedOn.substring(0, 10) : '');
+               });
+           });
+           // مودال التفاصيل
+           $('#taskDetailsModal').on('show.bs.modal', function (event) {
+               var button = $(event.relatedTarget);
+               var id = button.data('id');
+               $.get('/Home/GetTask/' + id, function (data) {
+                   $('#detailsTaskName').val(data.taskName);
+                   $('#detailsProjectName').val(data.projectName);
+                   $('#detailsDeveloper').val(data.userName);
+                   $('#detailsSprint').val(data.sprintName);
+                var stageText = (data.stage === 0 )? "Sprint" : "Backlog";
+
+                $('#detailsStage').val(stageText);
+
+               
+
+                /// اذا كانت المهمه ماعنده مشروع (direct task) تختفي خانة السبرنت
+                if(data.projectName ==="N/A")
+                {
+                     $('#sprintContainer').hide();
+                     $('#stageContainer').hide();
+
+
+
+                }else{
+                     $('#sprintContainer').show();
+                     $('#stageContainer').show();
+
+
+                }
+                   let statusMap = {
+                       0: "Not Started",
+                       1: "On Hold",
+                       2: "In Progress",
+                       3: "Done",
+                       4: "Canceled"
+                   };
+                   let statusText = statusMap[data.status] !== undefined ? statusMap[data.status] : data.status;
+                   $('#detailsStatus').val(statusText);
+                   $('#detailsNote').val(data.note);
+                   $('#detailsEstimatedDate').val(data.estimatedDate ? data.estimatedDate.substring(0, 10) : '');
+                   $('#detailsStartedOn').val(data.startedOn ? data.startedOn.substring(0, 10) : '');
+                   $('#detailsFinishedOn').val(data.finishedOn ? data.finishedOn.substring(0, 10) : '');
+               });
+           });
+           // تغيير الحالة تلقائياً عند تغيير التواريخ
+           $(document).on('change', '#StartedOn', function () {
+               var modal = $(this).closest('.modal');
+               var statusSelect = modal.find("select[name='Status']");
+               if ($(this).val() && (statusSelect.val() == "0" || statusSelect.val() === "")) {
+                   statusSelect.val("2"); // In Progress
+               }
+           });
+           $(document).on('change', '#FinishedOn', function () {
+               var modal = $(this).closest('.modal');
+               var statusSelect = modal.find("select[name='Status']");
+               if ($(this).val()) {
+                   statusSelect.val("3"); // Done
+               }
+           });
+       });
+</script>
+    <script>
+        $(document).ready(function () {
+            // إرسال فورم الإضافة عبر الـ AJAX لمنع إعادة تحميل الصفحة
+            $(document).on('submit', '#addTaskForm', function (e) {
+                e.preventDefault();
+                var form = $(this);
+                var url = form.attr('action');
+                var formData = form.serialize();
+                $('#createTaskError').addClass('d-none').text('');
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        if (response.success) {
+                            $('#addTaskModal').modal('hide');
+                            location.reload(); // تحديث الصفحة لتظهر المهمة الجديدة بالجدول
+                        } else {
+                            var errorMsg = response.message || "Please fill the required fields.";
+                            $('#createTaskError').text(errorMsg).removeClass('d-none');
+                        }
+                    },
+                    error: function (xhr) {
+                        $('#createTaskError').text('Server Error: حدث خطأ أثناء الحفظ.').removeClass('d-none');
+                    }
+                });
+            });
+            // تغيير الحالة تلقائياً عند إدخال تواريخ البدء أو الانتهاء في مودال الإضافة
+            $(document).on('change', '#createStartedOn', function () {
+                var modal = $(this).closest('.modal');
+                var statusSelect = modal.find("select[name='Status']");
+                if ($(this).val() && (statusSelect.val() == "0" || statusSelect.val() === "")) {
+                    statusSelect.val("2"); // In Progress
+                }
+            });
+            $(document).on('change', '#createFinishedOn', function () {
+                var modal = $(this).closest('.modal');
+                var statusSelect = modal.find("select[name='Status']");
+                if ($(this).val()) {
+                    statusSelect.val("3"); // Done
+                }
+            });
+        });
+    </script>
+}
