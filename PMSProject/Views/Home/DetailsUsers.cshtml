@@ -4,11 +4,15 @@
     <div class="card shadow mb-4">
         <div class="card-header bg-dark text-white">
             <h3> @Model.User.UserName</h3>
+            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addTaskModal">
+<i class="bi bi-plus-circle"></i> Add Task to User
+</button>
         </div>
         <div class="card-body">
             <p><strong>Email:</strong> @Model.User.Email</p>
         </div>
     </div>
+
     <!-- Projects Section -->
     <div class="row">
    
@@ -302,4 +306,170 @@
         </div>
     </div>
 
- 
+
+<!------------------ add task modal ------------------->
+<div class="modal fade" id="addTaskModal" tabindex="-1" aria-labelledby="addTaskModalLabel" aria-hidden="true">
+<div class="modal-dialog modal-lg">
+<div class="modal-content">
+<form id="addTaskForm" asp-controller="Tasks" asp-action="CreateT" method="post">
+<div class="modal-header bg-success text-white">
+<h5 class="modal-title" id="addTaskModalLabel">Add New Task for @Model.User.UserName</h5>
+<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+<!-- صندوق الأخطاء الداخلي داخل المودال -->
+<div id="createTaskError" class="alert alert-danger d-none" role="alert"></div>
+<!-- تعبئة ID المستخدم الحالي تلقائياً وغير قابل للتعديل -->
+<input type="hidden" name="selectedUserId" value="@Model.User.Id" />
+<div class="mb-3">
+<label class="form-label">Task Name</label>
+<input type="text" name="TaskName" class="form-control" required />
+</div>
+<div class="mb-3">
+<label class="form-label">Project</label>
+<select name="projectId" id="modalProjectId" class="form-control">
+<option value="">-- Select Project --</option>
+                           @if (Model.Projects != null)
+                           {
+                               @foreach (var p in Model.Projects)
+                               {
+<option value="@p.Id">@p.ProjectName</option>
+                               }
+                           }
+</select>
+</div>
+<div class="mb-3">
+<label class="form-label">Stage</label>
+<select name="stage" class="form-control" asp-items="Html.GetEnumSelectList<PMSProject.Models.TaskStage>()">
+<option value="">-- Select Stage --</option>
+</select>
+</div>
+<div class="mb-3">
+<label class="form-label">Sprint</label>
+<select name="sprintId" id="modalSprintId" class="form-control">
+<option value="">-- Select Sprint (Backlog) --</option>
+                           @if (ViewBag.SprintsList != null)
+                           {
+                               foreach (var s in ViewBag.SprintsList)
+                               {
+<option value="@s.Value">@s.Text</option>
+                               }
+                           }
+</select>
+</div>
+<div class="mb-3">
+<label class="form-label">Task Notes / Details</label>
+<textarea name="Notes" class="form-control" rows="3" placeholder="Add any notes or details about this task..."></textarea>
+</div>
+<div class="mb-3">
+<label class="form-label">Status</label>
+<select name="Status" id="modalStatus" class="form-control">
+<option value="0">Not Started</option>
+<option value="1">On Hold</option>
+<option value="2">In Progress</option>
+<option value="3">Done</option>
+<option value="4">Canceled</option>
+</select>
+</div>
+<div class="mb-3">
+<label for="EstimatedDate" class="form-label">Estimated Date</label>
+<input type="date" class="form-control" name="EstimatedDate" id="EstimatedDate" />
+</div>
+<div class="mb-3">
+<label for="StartedOn" class="form-label">Started On</label>
+<input type="date" class="form-control" name="StartedOn" id="StartedOn" />
+</div>
+<div class="mb-3">
+<label for="FinishedOn" class="form-label">Finished On</label>
+<input type="date" class="form-control" name="FinishedOn" id="FinishedOn" />
+</div>
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+<button type="submit" class="btn btn-success">Save Task</button>
+</div>
+</form>
+</div>
+</div>
+</div>
+
+<script>
+   $(document).ready(function() {
+       // 1. مسح الأخطاء وإعادة تعيين الفورم عند إغلاق المودل
+       $('#addTaskModal').on('hidden.bs.modal', function () {
+           $(this).find('form')[0].reset();
+           $('#createTaskError').addClass('d-none').text('');
+       });
+       // 2. التحقق من تاريخ الEstimated Date داخل المودل وإظهار الخطأ في صندوق التنبيه الأحمر
+       $(document).on('change', 'input[name="EstimatedDate"]', function() {
+           var modal = $(this).closest('.modal');
+           var errorBox = modal.find('#createTaskError');
+           var selectedDate = new Date($(this).val());
+           var today = new Date();
+           today.setHours(0, 0, 0, 0);
+           if (selectedDate < today) {
+               errorBox.text("Estimated date cannot be in the past").removeClass("d-none");
+               $(this).val('');
+           } else {
+               errorBox.addClass("d-none");
+           }
+       });
+       // 3. إرسال الفورم بالـ AJAX وإظهار الأخطاء إن وجدت داخل المودل نفسه دون الانتقال لصفحة أخرى
+       $(document).on('submit', '#addTaskForm', function (e) {
+           e.preventDefault();
+           var form = $(this);
+           var url = form.attr('action');
+           var formData = form.serialize();
+           var errorBox = $('#createTaskError');
+           errorBox.addClass('d-none').text('');
+           $.ajax({
+               url: url,
+               type: 'POST',
+               data: formData,
+               success: function (response) {
+                   if (response.success) {
+                       $('#addTaskModal').modal('hide');
+                       location.reload();
+                   } else {
+                       var errorMsg = response.message || response.Message || "Please fill the required fields.";
+                       errorBox.text(errorMsg).removeClass('d-none');
+                   }
+               },
+               error: function (xhr) {
+                   errorBox.text('Server Error (' + xhr.status + '): حدث خطأ أثناء الاتصال بالخادم.').removeClass('d-none');
+               }
+           });
+       });
+   });
+</script>
+    <script>
+        $(document).on('change', '.status-dropdown', function () {
+           let $dropdown = $(this);
+           let taskId = $dropdown.data('task-id');
+           let newStatus = $dropdown.val();
+           // إرسال الطلب عبر الـ AJAX
+           $.ajax({
+               url: '/Tasks/UpdateTaskStatus',
+               type: 'POST',
+               data: {
+                   taskId: taskId,
+                   newStatus: newStatus
+               },
+               success: function (response) {
+                   console.log("server resonse :",response);
+                   if (response.success) {
+                       console.log("Status updated successfully");
+                   } else {
+                       alert("Error: " + response.message);
+                   }
+               },
+               error: function (xhr) {
+                   console.error("AJAX Error:", xhr.responseText);
+                   alert("An error occurred while updating the status.");
+               }
+           });
+        });
+      
+
+
+    </script>

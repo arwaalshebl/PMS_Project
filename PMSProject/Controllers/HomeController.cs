@@ -111,7 +111,8 @@ namespace PMSProject.Controllers
             ViewBag.TaskList = allTasks;
 
             ViewBag.ParentProjects = allProjects.Where(pp=>pp.ParentProjectID == null).ToList();
-            
+
+          
             return View(model);
         }
         [HttpGet]
@@ -138,8 +139,8 @@ namespace PMSProject.Controllers
                 status = (int)task.Status,
                 userId = task.UserId,
                 projectId = task.ProjectId,
-                sprintId= task.SprintId,
-                stage = (int)task.Stage,
+                sprintId= task.SprintId ,
+                stage = task.Stage != null ? (int?)task.Stage : null,
                 note = task.Note,
                 estimatedDate = task.EstimatedDate,
                 startedOn = task.StartedOn,
@@ -210,6 +211,9 @@ namespace PMSProject.Controllers
                 DirectTasks = directTasks,
                 ProjectTasks = projectTasks
             };
+            ViewBag.SprintsList = new SelectList(_context.Sprints.ToList(), "Id", "SprintName");
+
+
             return View(viewModel);
 
         }
