@@ -199,7 +199,7 @@ namespace PMSProject.Controllers
             int complatedTasksCount = _context.Tasks
                 .Where(t=>t.UserId == id 
                 && t.Status == PMSProject.Models.TaskStatus.Done 
-                & t.Project != null)
+                && t.Project != null)
                 .Count();
 
             ViewBag.CompletedCount = complatedTasksCount;
@@ -212,6 +212,10 @@ namespace PMSProject.Controllers
                 ProjectTasks = projectTasks
             };
             ViewBag.SprintsList = new SelectList(_context.Sprints.ToList(), "Id", "SprintName");
+            ViewBag.Projects = await _context.Projects.ToListAsync();
+
+
+
 
 
             return View(viewModel);
