@@ -167,7 +167,7 @@ public class TasksController : Controller
     }
     [Authorize(Roles = "Admin,TechLead")]
 
-    public IActionResult DeleteT(int id)
+    public IActionResult DeleteT(int id ,string? returnUrl)
     {
         var task = _context.Tasks
 
@@ -177,7 +177,9 @@ public class TasksController : Controller
 
         _context.Tasks.Remove(task);
         _context.SaveChanges();
-        return RedirectToAction("Dashboard","Home");
+        //   return RedirectToAction("Dashboard","Home");
+        return LocalRedirect(returnUrl ?? Url.Action("Dashboard", "Home"));
+
 
 
     }
@@ -208,11 +210,15 @@ public class TasksController : Controller
     }
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EditT(int id ,TaskModel task, string? selectedUserId)
+    public async Task<IActionResult> EditT(int id ,TaskModel task, string? selectedUserId,string? returnUrl)
     {
         if (id != task.Id) return NotFound();
         ModelState.Remove("AssignedUser");
-        ModelState.Remove("UserId");
+       // ModelState.Remove("UserId");
+       if (string.IsNullOrEmpty(selectedUserId))
+        {
+            selectedUserId = task.UserId;
+        }
         if (ModelState.IsValid)
         {
             if (task.EstimatedDate.HasValue && task.EstimatedDate.Value.Date < DateTime.Today.Date)
@@ -234,12 +240,15 @@ public class TasksController : Controller
             task.AssignedUser = !string.IsNullOrEmpty(selectedUserId) ? await _userManager.FindByIdAsync(selectedUserId) : null;
             _context.Update(task);
             await _context.SaveChangesAsync();
-            return RedirectToAction("Dashboard", "Home");
+            // return RedirectToAction("Dashboard", "Home");
+            return LocalRedirect(returnUrl ?? Url.Action("Dashboard", "Home"));
         }
 
         var users = await _userManager.Users.ToListAsync();
         ViewBag.Users = new SelectList(users, "Id", "UserName", selectedUserId);
-        return RedirectToAction("Dashboard", "Home");
+        // return RedirectToAction("Dashboard", "Home");
+        return LocalRedirect(returnUrl ?? Url.Action("Dashboard", "Home"));
+
 
 
     }

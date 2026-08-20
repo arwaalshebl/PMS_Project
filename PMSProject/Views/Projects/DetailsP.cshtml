@@ -178,7 +178,11 @@
                             <td>
                                 @if (User.IsInRole("Admin") || User.IsInRole("TechLead"))
                                 {
-                                    <a class="btn btn-sm btn-danger" asp-controller="Tasks" asp-action="DeleteT" asp-route-id="@task.Id">Delete</a>
+                                    <a class="btn btn-sm btn-danger" asp-controller="Tasks"
+                                    asp-action="DeleteT" 
+                                    asp-route-id="@task.Id"
+                                    asp-route-returnUrl="@Context.Request.Path"
+                                    >Delete</a>
 
                                 }
                                 <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editTaskModal"
@@ -244,11 +248,12 @@
     </div>
 }
 
-<!------------------- edit TaskModal ---------------------->
+<!------------------- edit TaskModal (project details) ---------------------->
 <div class="modal fade" id="editTaskModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <form asp-controller="Tasks" asp-action="EditT" method="post">
+                <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
                 <div class="modal-header bg-info text-white">
                     <h5 class="modal-title">Edit Task</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -268,11 +273,24 @@
                     </div>
                     <div class="mb-3">
                         <label class="control-label">Assign Developer</label>
-                        <input type="hidden" id="TaskUserId" name="selectedUserId" value="@Model.Project.AssignedUser" />
-                        <input type="text" class="form-control" value="@Model.Project.AssignedUser?.UserName" readonly />
-
+                        @if (User.IsInRole("Admin") || User.IsInRole("TechLead"))
+                        {
+                            
+                            <select id="TaskUserId" name="selectedUserId" class="form-control" >
+                                <option value="">-- Unassigned --</option>
+                                 @if (Model.Project.AssignedUser != null)
+   {
+<option value="@Model.Project.AssignedUser.Id">@Model.Project.AssignedUser.UserName</option>
+   }
+                            </select>
+                        }
+                        else
+                        {
+                          
+                            <input type="text" id="userNameDisplay" class="form-control" readonly />
+                            <input type="hidden" id="TaskUserId" name="selectedUserId" />
+                        }
                     </div>
-
                     @if (User.IsInRole("Admin") || User.IsInRole("TechLead"))
 
                     {
@@ -560,25 +578,26 @@
 <script>
        $(document).ready(function () {
            // مودال التعديل
-           $('#editTaskModal').on('show.bs.modal', function (event) {
-               var button = $(event.relatedTarget);
-               var id = button.data('id');
-               $.get('/Home/GetTask/' + id, function (data) {
-                   $('#TaskId').val(data.id);
-                   $('#TaskName').val(data.taskName);
-                   $('#TaskUserId').val(data.userId);
-                   $('#modalProjectId').val(data.projectId);
-                   $('#modalStatus').val(data.status);
-                   $('#modalStage').val(data.stage);
-                    $('#modalSprintId').val(data.sprintId);
-
-
-                   $('#Note').val(data.note);
-                   $('#EstimatedDate').val(data.estimatedDate ? data.estimatedDate.substring(0, 10) : '');
-                   $('#StartedOn').val(data.startedOn ? data.startedOn.substring(0, 10) : '');
-                   $('#FinishedOn').val(data.finishedOn ? data.finishedOn.substring(0, 10) : '');
-               });
+                   $('#editTaskModal').on('show.bs.modal', function (event) {
+           var button = $(event.relatedTarget);
+           var id = button.data('id');
+           $.get('/Home/GetTask/' + id, function (data) {
+               $('#TaskId').val(data.id);
+               $('#TaskName').val(data.taskName);
+               // تعبئة معرف المطور في الـ Select أو الـ Hidden Input
+               $('#TaskUserId').val(data.userId || '');
+               // إذا كان مطور عادي، اعرض اسمه في خانة الـ Readonly
+               $('#userNameDisplay').val(data.userName || 'Unassigned');
+               $('#modalProjectId').val(data.projectId);
+               $('#modalStatus').val(data.status);
+               $('#modalStage').val(data.stage);
+               $('#modalSprintId').val(data.sprintId);
+               $('#Note').val(data.note);
+               $('#EstimatedDate').val(data.estimatedDate ? data.estimatedDate.substring(0, 10) : '');
+               $('#StartedOn').val(data.startedOn ? data.startedOn.substring(0, 10) : '');
+               $('#FinishedOn').val(data.finishedOn ? data.finishedOn.substring(0, 10) : '');
            });
+        });
            // مودال التفاصيل
            $('#taskDetailsModal').on('show.bs.modal', function (event) {
                var button = $(event.relatedTarget);

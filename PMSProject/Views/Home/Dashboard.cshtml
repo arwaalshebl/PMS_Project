@@ -253,7 +253,11 @@
                                         <td>
                                             @if (User.IsInRole("Admin") || User.IsInRole("TechLead"))
                                             {
-                                                <a class="btn btn-sm btn-danger" asp-controller="Tasks" asp-action="DeleteT" asp-route-id="@task.Id">Delete</a>
+                                                <a class="btn btn-sm btn-danger" asp-controller="Tasks"
+                                                asp-action="DeleteT"
+                                                asp-route-id="@task.Id"
+                                                asp-route-returnUrl="@Context.Request.Path"
+                                                >Delete</a>
 
                                             }
                                             <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editTaskModal" data-id="@task.Id">
@@ -581,6 +585,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <form asp-controller="Tasks" asp-action="EditT" method="post">
+                <input type="hidden" name="returnUrl" value="@Context.Request.Path" />
                 <div class="modal-header">
                     <h5 class="modal-title">Edit Task</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -634,7 +639,7 @@
 
                     <div class="mb-3">
                         <label  name="Note" class="form-label">Task Notes / Details</label>
-                        <textarea  id="Note" name="Note" class="form-control" rows="3" placeholder="Add any notes or details about this task..."></textarea>
+                        <textarea  id="NoteEdit" name="Note" class="form-control" rows="3" placeholder="Add any notes or details about this task..."></textarea>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Status</label>
@@ -910,7 +915,7 @@
                $('#modalStatus').val(data.status);
                $('#modalSprintId').val(data.sprintId); // تعبئة السبرنت المختار
                $('#modalStage').val(data.stage);       // تعبئة الستيج المحفوظ
-                 $('#Note').val(data.note);
+                 $('#NoteEdit').val(data.note);
                // لو كان المستخدم مطور عادي (Input مخفي ومعروض)
                $('#userNameDisplay').val(data.userName);
                $('#EstimatedDate').val(data.estimatedDate ? data.estimatedDate.substring(0, 10) : '');
