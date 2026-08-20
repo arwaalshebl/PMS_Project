@@ -1,44 +1,48 @@
 ﻿@using System.Security.Claims
 @model PMSProject.Models.TaskAndProjectViewModel
 <div class="card shadow mb-4">
-    <div class="card-header bg-primary text-white">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
         <h4 class="mb-0">@Model.Project.ProjectName</h4>
+        <!-- زر التعديل بشكل أنيق أعلى البطاقة -->
+        <button type="button" class="btn btn-light btn-sm text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#editProjectModal" data-id="@Model.Project.Id">
+            <i class="fas fa-edit"></i> Edit Project
+        </button>
     </div>
     <div class="card-body">
-        <div class="row">
+        <div class="row mb-3">
             <div class="col-md-6">
-                
-                <p><strong>Weight / Priority:</strong> <span class="badge bg-info">@Model.Project.Weight</span></p>
+                <p class="mb-1"><strong>Weight / Priority:</strong> <span class="badge bg-info">@Model.Project.Weight</span></p>
             </div>
             <div class="col-md-6">
-                <p><strong>Owner / Member:</strong> @(Model.Project.AssignedUser?.UserName ?? "Unassigned")</p>
+                <p class="mb-1"><strong>Owner / Member:</strong> @(Model.Project.AssignedUser?.UserName ?? "Unassigned")</p>
             </div>
         </div>
-        <div class="mt-2">
+        <div class="mb-3">
             <strong>Notes / Details:</strong>
-            <p class="text-bg-light">@(Model.Project.Note ?? "No notes provided.")</p>
+            <div class="p-2 bg-light rounded text-dark mt-1">
+                @(Model.Project.Note ?? "No notes provided.")
+            </div>
         </div>
-        <div>
+        <hr />
+        <div class="mb-3">
+            <strong>Attachment:</strong>
             @if (!string.IsNullOrEmpty(Model.Project.AttachmentPath))
             {
-                <div class="mb-3">
-                    <p><strong>Attached File:</strong></p>
+                <div class="mt-2">
                     <a href="@Model.Project.AttachmentPath" target="_blank" class="btn btn-outline-primary btn-sm">
                         📄 View / Download File
                     </a>
-
-
                 </div>
             }
             else
             {
-                <p class="text-muted">No attachment uploaded yet.</p>
+                <p class="text-muted mt-1 mb-2">No attachment uploaded yet.</p>
             }
-           <form asp-action="UploadAttachment" asp-route-id="@Model.Project.Id" method="post" enctype="multipart/form-data">
-            <div class="input-group" col="6">
-                <input type="file" name="file" class="form-control" required />
-                <button type="submit" class="btn btn-success">Upload</button>
-            </div>
+            <form asp-action="UploadAttachment" asp-route-id="@Model.Project.Id" method="post" enctype="multipart/form-data" class="mt-2">
+                <div class="input-group" style="max-width: 400px;">
+                    <input type="file" name="file" class="form-control" required />
+                    <button type="submit" class="btn btn-success">Upload</button>
+                </div>
             </form>
         </div>
     </div>
@@ -50,7 +54,10 @@
 
 
 <!--task table-->
-            <button type="button" class="btn btn-outline-success rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#addTaskModal">
+            <button type="button" class="btn btn-outline-success rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#addTaskModal" 
+        data-project-id="@Model.Project.Id"
+        data-developer-id="@Model.Project.UserId" >
+
                 + Add Task (model)
             </button>
 <div class="card shadow-sm mb-4">
@@ -199,7 +206,10 @@
     <div class="card shadow mb-4">
         <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Publish History</h5>
-            <a asp-controller="Projects" asp-action="CreatePublish" asp-route-id="@Model.Project.Id" class="btn btn-outline-dark">add release</a>
+          
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addPublishModal">
+                + Add Release
+            </button>
         </div>
         <div class="card-body">
             @if (Model.PublishHistories != null && Model.PublishHistories.Any())
@@ -244,6 +254,8 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                    <div id="editTaskError" class="alert alert-danger d-none" role="alert"></div>
+
                     <input type="hidden" id="TaskId" name="Id" />
                     <input type="hidden" id="modalProjectId" name="ProjectId" value="@Model.Project.Id" />
                     <div class="mb-3">
@@ -280,7 +292,7 @@
                     }
                     <div class="mb-3">
                         <label class="form-label">Task Notes / Details</label>
-                        <textarea id="Notes" name="Notes" class="form-control" rows="3"></textarea>
+                        <textarea id="Note" name="Note" class="form-control" rows="3"></textarea>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Status</label>
@@ -339,7 +351,8 @@
                         <label class="form-label">Assign Developer</label>
                         @if (User.IsInRole("Admin") || User.IsInRole("TechLead"))
                         {
-                            <select name="selectedUserId" id="modalUserId" class="form-control" asp-items="ViewBag.Users">
+                            <input type="hidden" id="modalAssignedUserId" value="@Model.Project.UserId" />
+                            <select name="selectedUserId" id="modalUserId" class="form-select" asp-items="ViewBag.Users">
                                 <option value="">-- Unassigned --</option>
                             </select>
                         }
@@ -347,6 +360,8 @@
                         {
                             <input type="hidden" name="selectedUserId" value="@User.FindFirstValue(ClaimTypes.NameIdentifier)" />
                             <input type="text" class="form-control" value="@User.Identity.Name" readonly />
+                            <p class="text-muted small"><i class="bi bi-info-circle">This task will assign to you</i></p>
+
                         }
                     </div>
                     <div class="mb-3">
@@ -366,7 +381,7 @@
                     }
                     <div class="mb-3">
                         <label class="form-label">Task Notes / Details</label>
-                        <textarea name="Notes" class="form-control" rows="3"></textarea>
+                        <textarea name="Note" class="form-control" rows="3"></textarea>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Status</label>
@@ -441,7 +456,7 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-bold">Task Notes</label>
-                    <textarea id="detailsNote" class="form-control" rows="3" readonly></textarea>
+                    <textarea id="detailsNote" name="Note" class="form-control" rows="3" readonly></textarea>
                 </div>
                 <div class="row">
                     <div class="col-md-4 mb-3">
@@ -456,14 +471,90 @@
                         <label class="form-label fw-bold small">Finished</label>
                         <input type="text" id="detailsFinishedOn" class="form-control" readonly />
                     </div>
+                    </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
         </div>
     </div>
 </div>
+
+<!-- ------------------- Edit Project Modal ---------------------->
+<div class="modal fade" id="editProjectModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-controller="Projects" asp-action="EditP" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Project</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- حقل مخفي لـ الـ ID -->
+                    <input type="hidden" id="Edit_ProjectId" name="Id" />
+                    <div class="mb-3">
+                        <label class="control-label">Project Name</label>
+                        <input type="text" id="Edit_ProjectName" name="ProjectName" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="control-label">Assign Developer</label>
+                        <select id="Edit_ProjectUserId" name="selectedUserId" class="form-control" asp-items="ViewBag.Users">
+                            <option value="">-- Select Developer --</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Weight (1-10)</label>
+                        <input name="Weight" id="Edit_Weight" type="number" class="form-control" min="1" max="10" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Notes</label>
+                        <textarea name="Note" id="Edit_Note" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!------------------- Add Publish Modal ------------------->
+<div class="modal fade" id="addPublishModal" tabindex="-1" aria-labelledby="addPublishModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="addPublishForm" asp-controller="Projects" asp-action="CreatePublish" method="post">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="addPublishModalLabel">Add New Publish Record</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- مكان لعرض أخطاء التحقق -->
+                    <div id="createPublishError" class="alert alert-danger d-none" role="alert"></div>
+                    <!-- حقل مخفي لرقم المشروع -->
+                    <input type="hidden" name="ProjectId" value="@Model.Project.Id" />
+                    <div class="mb-3">
+                        <label class="form-label">Publish Date</label>
+                        <input type="date" name="PublishDate" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Reason / Type</label>
+                        <input type="text" name="Reason" class="form-control" placeholder="e.g. Bug Fix, New Feature" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Details & Changes</label>
+                        <textarea name="Details" class="form-control" rows="4" placeholder="Write the update details here..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Publish</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 
 @section Scripts {
 <script>
@@ -482,7 +573,7 @@
                     $('#modalSprintId').val(data.sprintId);
 
 
-                   $('#Notes').val(data.note);
+                   $('#Note').val(data.note);
                    $('#EstimatedDate').val(data.estimatedDate ? data.estimatedDate.substring(0, 10) : '');
                    $('#StartedOn').val(data.startedOn ? data.startedOn.substring(0, 10) : '');
                    $('#FinishedOn').val(data.finishedOn ? data.finishedOn.substring(0, 10) : '');
@@ -551,7 +642,42 @@
 </script>
     <script>
         $(document).ready(function () {
-            // إرسال فورم الإضافة عبر الـ AJAX لمنع إعادة تحميل الصفحة
+            $('#addTaskModal').on('show.bs.modal', function (event) {
+                var projectId = $('#modalProjectId').val();
+                var targetDeveloperId = $('#modalAssignedUserId').val();
+                var $devIdInput = $('#modalUserId');
+                if (!projectId) return;
+                // استدعاء المطورين الخاصين بهذا المشروع
+                $.ajax({
+                    url: '/Tasks/GetDevelopersByProject',
+                    type: 'GET',
+                    data: { projectId: projectId },
+                    success: function (data) {
+                        $devIdInput.empty();
+                        $devIdInput.append('<option value="">-- Unassigned --</option>');
+                        if (data && data.length > 0) {
+                            $.each(data, function (index, item) {
+                                let id = item.id || item.Id;
+                                let name = item.userName || item.UserName || item.name || item.Name;
+                                $devIdInput.append($('<option>', { value: id, text: name }));
+                            });
+                        }
+                        // تحديد المطور المسند للمشروع تلقائياً بعد تعبئة القائمة
+                        if (targetDeveloperId) {
+                            $devIdInput.val(targetDeveloperId);
+                        }
+                    },
+                    error: function (xhr) {
+                        console.error("Error fetching developers:", xhr.responseText);
+                    }
+                });
+            });
+            // مسح الأخطاء وإعادة تعيين الفورم عند إغلاق المودال
+            $('#addTaskModal').on('hidden.bs.modal', function () {
+                $(this).find('form')[0].reset();
+                $('#createTaskError').addClass('d-none').text('');
+            });
+            // إرسال الفورم بالـ AJAX لمنع إعادة تحميل الصفحة
             $(document).on('submit', '#addTaskForm', function (e) {
                 e.preventDefault();
                 var form = $(this);
@@ -565,32 +691,132 @@
                     success: function (response) {
                         if (response.success) {
                             $('#addTaskModal').modal('hide');
-                            location.reload(); // تحديث الصفحة لتظهر المهمة الجديدة بالجدول
+                            location.reload();
                         } else {
-                            var errorMsg = response.message || "Please fill the required fields.";
+                            var errorMsg = response.message || response.Message || "Please fill the required fields.";
                             $('#createTaskError').text(errorMsg).removeClass('d-none');
                         }
                     },
                     error: function (xhr) {
-                        $('#createTaskError').text('Server Error: حدث خطأ أثناء الحفظ.').removeClass('d-none');
+                        $('#createTaskError').text('Server Error: حدث خطأ أثناء الاتصال بالخادم.').removeClass('d-none');
                     }
                 });
             });
-            // تغيير الحالة تلقائياً عند إدخال تواريخ البدء أو الانتهاء في مودال الإضافة
-            $(document).on('change', '#createStartedOn', function () {
-                var modal = $(this).closest('.modal');
-                var statusSelect = modal.find("select[name='Status']");
-                if ($(this).val() && (statusSelect.val() == "0" || statusSelect.val() === "")) {
-                    statusSelect.val("2"); // In Progress
-                }
-            });
-            $(document).on('change', '#createFinishedOn', function () {
-                var modal = $(this).closest('.modal');
-                var statusSelect = modal.find("select[name='Status']");
-                if ($(this).val()) {
-                    statusSelect.val("3"); // Done
-                }
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('#editProjectModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+                var id = button.data('id');
+                // تحقق من وجود الـ id لتجنب أي طلبات خاطئة
+                if (!id) return;
+                // جلب البيانات عبر الـ AJAX وتعبئتها في الحقول الجديدة بدقة
+                $.get('/Home/GetProject/' + id)
+                    .done(function (data) {
+                        if (data) {
+                            $('#Edit_ProjectId').val(data.id);
+                            $('#Edit_ProjectName').val(data.projectName);
+                            $('#Edit_ProjectUserId').val(data.userId);
+                            $('#Edit_Note').val(data.note);
+                            $('#Edit_Weight').val(data.weight);
+                        }
+                    })
+                    .fail(function (xhr) {
+                        console.error("Error fetching project data: " + xhr.statusText);
+                    });
             });
         });
     </script>
+    <script>
+        $(document).ready(function () {
+            // إعادة تعيين الفورم ومسح الأخطاء عند إغلاق المودال
+            $('#addPublishModal').on('hidden.bs.modal', function () {
+                $(this).find('form')[0].reset();
+                $('#createPublishError').addClass('d-none').text('');
+            });
+            // إرسال الفورم الخاص بـ Publish عبر الـ AJAX
+            $(document).on('submit', '#addPublishForm', function (e) {
+                e.preventDefault();
+                var form = $(this);
+                var url = form.attr('action');
+                var formData = form.serialize();
+                $('#createPublishError').addClass('d-none').text('');
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        // تحقق مما إذا كانت الاستجابة JSON وتدل على النجاح، أو أعِد تحميل الصفحة مباشرة إذا كان الـ Controller يرجع Redirect
+                        if (response && response.success === false) {
+                            var errorMsg = response.message || "Please fill the required fields.";
+                            $('#createPublishError').text(errorMsg).removeClass('d-none');
+                        } else {
+                            $('#addPublishModal').modal('hide');
+                            location.reload(); // تحديث الصفحة لتظهر سجلات النشر الجديدة فوراً
+                        }
+                    },
+                    error: function (xhr) {
+                        $('#createPublishError').text('Server Error: حدث خطأ أثناء الاتصال بالخادم.').removeClass('d-none');
+                    }
+                });
+            });
+        });
+    </script>
+    <script>
+        $(document).on('change', '.status-dropdown', function () {
+           let $dropdown = $(this);
+           let taskId = $dropdown.data('task-id');
+           let newStatus = $dropdown.val();
+           // إرسال الطلب عبر الـ AJAX
+           $.ajax({
+               url: '/Tasks/UpdateTaskStatus',
+               type: 'POST',
+               data: {
+                   taskId: taskId,
+                   newStatus: newStatus
+               },
+               success: function (response) {
+                   console.log("server resonse :",response);
+                   if (response.success) {
+                       console.log("Status updated successfully");
+                   } else {
+                       alert("Error: " + response.message);
+                   }
+               },
+               error: function (xhr) {
+                   console.error("AJAX Error:", xhr.responseText);
+                   alert("An error occurred while updating the status.");
+               }
+           });
+        });
+
+      
+
+    </script>
+    <script>
+        $(document).ready(function() {
+           // التحقق عند تغيير تاريخ الـ Estimated Date في أي مودل (إضافة أو تعديل)
+           $(document).on('change', 'input[name="EstimatedDate"]', function() {
+               var modal = $(this).closest('.modal');
+               // التأكد من وجود صندوق التنبيه الأحمر داخل المودل، وإذا لم يوجد يتم إضافته تلقائياً في الأعلى
+               var errorBox = modal.find('.alert-danger');
+               if (errorBox.length === 0) {
+                   modal.find('.modal-body').prepend('<div class="alert alert-danger d-none" role="alert"></div>');
+                   errorBox = modal.find('.alert-danger');
+               }
+               var selectedDate = new Date($(this).val());
+               var today = new Date();
+               today.setHours(0, 0, 0, 0); // تصفير الوقت للمقارنة السليمة
+               // الشرط: إذا كان التاريخ المختار أصغر من تاريخ اليوم
+               if (selectedDate < today) {
+                   errorBox.text("Estimated date cannot be in the past").removeClass("d-none"); // إظهار التنبيه الأحمر
+                   $(this).val(''); // تفريغ الحقل الخاطئ
+               } else {
+                   errorBox.addClass("d-none"); // إخفاء التنبيه إذا كان التاريخ صحيحاً
+               }
+           });
+        });
+    </script>
+
 }

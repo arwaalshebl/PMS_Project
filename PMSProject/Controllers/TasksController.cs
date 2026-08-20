@@ -236,6 +236,7 @@ public class TasksController : Controller
             await _context.SaveChangesAsync();
             return RedirectToAction("Dashboard", "Home");
         }
+
         var users = await _userManager.Users.ToListAsync();
         ViewBag.Users = new SelectList(users, "Id", "UserName", selectedUserId);
         return RedirectToAction("Dashboard", "Home");

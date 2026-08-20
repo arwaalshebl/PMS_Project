@@ -137,7 +137,7 @@
                                         <td>
                                             @if (User.IsInRole("Admin") || User.IsInRole("TechLead"))
                                             {
-                                                <button class="btn btn-sm btn-danger" asp-action="DeleteP" asp-route-id="@project.Id">Delete</button>
+                                               <a asp-controller="Projects" asp-action="DeleteP" asp-route-id="@project.Id" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this project?');">Delete</a>
                                                 <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editProjectModal" data-id="@project.Id">
                                                     Edit
                                                 </button>
@@ -633,8 +633,8 @@
                         }
 
                     <div class="mb-3">
-                        <label name="Notes" class="form-label">Task Notes / Details</label>
-                        <textarea id="Notes" name="Notes" class="form-control" rows="3" placeholder="Add any notes or details about this task..."></textarea>
+                        <label  name="Note" class="form-label">Task Notes / Details</label>
+                        <textarea  id="Note" name="Note" class="form-control" rows="3" placeholder="Add any notes or details about this task..."></textarea>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Status</label>
@@ -694,6 +694,7 @@
                     @if(User.IsInRole("Admin")||User.IsInRole("TechLead"))
                         {
                         <div class="mb-3">
+
                             <label class="form-label">Assign Developer</label>
                             <select name="selectedUserId" id="modalUserId" class="form-control" asp-items="@(new SelectList(ViewBag.Users, "Id", "UserName"))">
                                 <option value="">-- Unassigned --</option>
@@ -725,7 +726,7 @@
 
                     <div class="mb-3">
                         <label name="Notes" class="form-label">Task Notes / Details</label>
-                        <textarea name="Notes" class="form-control" rows="3" placeholder="Add any notes or details about this task..."></textarea>
+                        <textarea name="Note" class="form-control" rows="3" placeholder="Add any notes or details about this task..."></textarea>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Status</label>
@@ -795,7 +796,7 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label fw-bold">Task Notes</label>
-                    <textarea id="detailsNote" class="form-control" rows="3" readonly></textarea>
+                    <textarea id="detailsNote" name="Note" class="form-control" rows="3" readonly></textarea>
                 </div>
                 <div class="row">
                     <div class="col-md-4 mb-3">
@@ -909,7 +910,7 @@
                $('#modalStatus').val(data.status);
                $('#modalSprintId').val(data.sprintId); // تعبئة السبرنت المختار
                $('#modalStage').val(data.stage);       // تعبئة الستيج المحفوظ
-               $('#Notes').val(data.note);
+                 $('#Note').val(data.note);
                // لو كان المستخدم مطور عادي (Input مخفي ومعروض)
                $('#userNameDisplay').val(data.userName);
                $('#EstimatedDate').val(data.estimatedDate ? data.estimatedDate.substring(0, 10) : '');
