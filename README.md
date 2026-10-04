@@ -1,6 +1,6 @@
 # PMS Project
 
-A Project Management System built with ASP.NET Core MVC and Entity Framework Core. The application helps manage projects, tasks, sprints, and users with role-based access for Admin, Tech Lead, and Developer roles.
+A Project Management System built with ASP.NET Core MVC and Entity Framework Core. The application helps manage projects, tasks, sprints, and users with role-based access for Admin, Tech Lead, and Developers.
 
 ## Features
 
