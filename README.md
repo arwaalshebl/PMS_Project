@@ -22,6 +22,23 @@ A Project Management System built with ASP.NET Core MVC and Entity Framework Cor
 - ASP.NET Core Identity
 - Razor Views
 
+## Screenshots
+
+### Dashboard Overview
+The dashboard provides a summary of projects, direct tasks, and project tasks with role-based filtering.
+
+![Dashboard Overview](docs/images/dashboard.png)
+
+### Projects Section
+This section displays projects, parent/sub-project relationships, assigned developers, and project actions.
+
+![Projects Section](docs/images/projects.png)
+
+### Tasks Section
+This section shows task tracking, sprint status, due dates, and task management actions.
+
+![Tasks Section](docs/images/tasks.png)
+
 ## Project Structure
 
 ```text
@@ -41,7 +58,9 @@ PMS_Project/
 ├── PMSProject.slnx
 ├── .gitignore
 ├── .gitattributes
-└── README.md
+├── README.md
+└── docs/
+    └── images/
 ```
 
 ## Prerequisites
